@@ -1,0 +1,63 @@
+{
+  "name": "@useorgx/agent-work-receipt",
+  "version": "0.1.0",
+  "description": "Account-free Agent Work Receipt v0.1 schema, types, and deterministic validator.",
+  "license": "Apache-2.0",
+  "author": "OrgX <team@useorgx.com>",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "npm@11.5.1",
+  "main": "dist/src/index.js",
+  "module": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src",
+    "schema",
+    "fixtures",
+    "conformance",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    },
+    "./schema": "./schema/agent-work-receipt.v0.1.schema.json",
+    "./fixtures/*": "./fixtures/*",
+    "./conformance/*": "./conformance/*"
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "test": "vitest run --config vitest.config.ts tests/conformance.spec.ts tests/integrity.spec.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/useorgx/agent-work-receipt.git"
+  },
+  "homepage": "https://github.com/useorgx/agent-work-receipt#readme",
+  "bugs": {
+    "url": "https://github.com/useorgx/agent-work-receipt/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.1.3"
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "schema_version": "agent-work-receipt/v0.1",
+  "receipt_id": "awr:codex:run-2026-07-19-001",
+  "intent": {
+    "summary": "Add a portable receipt validator and prove it with focused tests.",
+    "objective": "Produce an account-free contract that another runtime can validate without OrgX identifiers.",
+    "acceptance_criteria": [
+      "The JSON Schema accepts opaque external identifiers.",
+      "The focused conformance tests pass."
+    ],
+    "constraints": ["Do not change application routes."],
+    "request_ref": {
+      "system": "codex",
+      "type": "task",
+      "id": "task-local-41"
+    }
+  },
+  "actor": {
+    "type": "agent",
+    "id": "codex-agent-local",
+    "display_name": "Codex",
+    "runtime": {
+      "name": "codex-desktop",
+      "version": "fixture"
+    },
+    "model": {
+      "provider": "openai",
+      "name": "fixture-model"
+    }
+  },
+  "authority": {
+    "mode": "delegated",
+    "status": "restricted",
+    "scope": {
+      "actions": ["read_source", "edit_package", "run_tests"],
+      "resources": [
+        {
+          "system": "git",
+          "type": "repository",
+          "id": "local/orgx"
+        }
+      ],
+      "systems": ["filesystem", "git"],
+      "spend_limit": {
+        "currency": "USD",
+        "amount": 1
+      }
+    },
+    "delegated_by": {
+      "type": "human",
+      "id": "workspace-owner"
+    },
+    "authorization_ref": {
+      "system": "codex",
+      "type": "task_message",
+      "id": "message-41"
+    },
+    "constraints": ["Write only inside packages/agent-work-receipt."],
+    "valid_from": "2026-07-19T15:00:00Z",
+    "valid_until": "2026-07-19T16:00:00Z"
+  },
+  "actions": [
+    {
+      "id": "action-inspect",
+      "type": "source.inspect",
+      "summary": "Inspected existing receipt contracts and package conventions.",
+      "status": "completed",
+      "system": "filesystem",
+      "started_at": "2026-07-19T15:00:00Z",
+      "completed_at": "2026-07-19T15:02:00Z"
+    },
+    {
+      "id": "action-test",
+      "type": "test.run",
+      "summary": "Ran the Agent Work Receipt conformance suite.",
+      "status": "completed",
+      "system": "vitest",
+      "tool_ref": {
+        "system": "vitest",
+        "type": "command",
+        "id": "vitest-run-agent-work-receipt"
+      },
+      "output_refs": [
+        {
+          "system": "local-filesystem",
+          "type": "test_output",
+          "id": "test-output-codex"
+        }
+      ],
+      "started_at": "2026-07-19T15:08:00Z",
+      "completed_at": "2026-07-19T15:08:05Z"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "artifact-schema",
+      "kind": "json_schema",
+      "name": "Agent Work Receipt v0.1 schema",
+      "role": "output",
+      "ref": {
+        "system": "git",
+        "type": "file",
+        "id": "packages/agent-work-receipt/schema/agent-work-receipt.v0.1.schema.json",
+        "uri": "file:packages/agent-work-receipt/schema/agent-work-receipt.v0.1.schema.json"
+      },
+      "media_type": "application/schema+json",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "1111111111111111111111111111111111111111111111111111111111111111",
+        "encoding": "hex"
+      },
+      "created_at": "2026-07-19T15:07:00Z"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence-tests",
+      "kind": "test_result",
+      "summary": "Focused conformance tests passed.",
+      "ref": {
+        "system": "local-filesystem",
+        "type": "test_output",
+        "id": "test-output-codex"
+      },
+      "observed_at": "2026-07-19T15:08:05Z",
+      "excerpt": "Tests: passed",
+      "supports": ["verification", "outcome"]
+    }
+  ],
+  "outcome": {
+    "status": "succeeded",
+    "summary": "The portable schema, types, validator, and fixtures were produced.",
+    "observed_effects": ["Codex can emit a receipt without an OrgX account."],
+    "metrics": [
+      {
+        "name": "focused_tests_passed",
+        "value": 1,
+        "unit": "boolean",
+        "target": 1,
+        "observed_at": "2026-07-19T15:08:05Z",
+        "evidence_ids": ["evidence-tests"]
+      }
+    ]
+  },
+  "verification": {
+    "status": "passed",
+    "method": "Deterministic JSON Schema and semantic conformance suite.",
+    "verifier": {
+      "type": "service",
+      "id": "vitest-local"
+    },
+    "checks": [
+      {
+        "id": "check-conformance",
+        "name": "Agent Work Receipt conformance",
+        "status": "passed",
+        "method": "vitest run",
+        "evidence_ids": ["evidence-tests"]
+      }
+    ],
+    "evidence_ids": ["evidence-tests"],
+    "verified_at": "2026-07-19T15:08:05Z"
+  },
+  "cost": {
+    "currency": "USD",
+    "total": 0.08,
+    "components": [
+      {
+        "category": "model",
+        "amount": 0.08
+      }
+    ],
+    "usage": [
+      {
+        "name": "agent_runtime",
+        "quantity": 8,
+        "unit": "minutes",
+        "cost": 0.08
+      }
+    ],
+    "human_minutes": 0,
+    "estimated": true
+  },
+  "lineage": {
+    "run_ref": {
+      "system": "codex",
+      "type": "run",
+      "id": "run-2026-07-19-001"
+    },
+    "parent_receipt_refs": [],
+    "references": [
+      {
+        "relationship": "produced_in",
+        "ref": {
+          "system": "git",
+          "type": "branch",
+          "id": "codex/agent-work-receipt-phases-1-3"
+        }
+      }
+    ],
+    "trace_id": "codex-trace-001"
+  },
+  "human_interventions": [],
+  "timestamps": {
+    "started_at": "2026-07-19T15:00:00Z",
+    "completed_at": "2026-07-19T15:08:05Z",
+    "issued_at": "2026-07-19T15:08:06Z",
+    "duration_ms": 485000
+  },
+  "integrity": {
+    "content_hash": {
+      "algorithm": "sha-256",
+      "value": "194e39caed53469a5fc76544763dd4af01da30f5b94202841bbfe871b628d195",
+      "encoding": "hex"
+    }
+  }
+}

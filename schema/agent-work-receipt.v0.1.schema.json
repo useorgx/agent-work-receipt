@@ -1,0 +1,1076 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://useorgx.com/schemas/agent-work-receipt/v0.1/schema.json",
+  "title": "Agent Work Receipt v0.1",
+  "description": "A portable, account-free record of agent intent, authority, actions, evidence, outcome, verification, cost, lineage, and human intervention. Identifiers are opaque external strings and never require an OrgX account or UUID.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "intent",
+    "actor",
+    "authority",
+    "actions",
+    "artifacts",
+    "evidence",
+    "outcome",
+    "verification",
+    "cost",
+    "lineage",
+    "human_interventions",
+    "timestamps"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "agent-work-receipt/v0.1",
+      "description": "Stable contract version. Producers must not silently emit a different shape under this value."
+    },
+    "receipt_id": {
+      "$ref": "#/$defs/id",
+      "description": "Producer-owned opaque receipt identifier. UUIDs are allowed but never required."
+    },
+    "intent": {
+      "$ref": "#/$defs/intent"
+    },
+    "actor": {
+      "$ref": "#/$defs/actor"
+    },
+    "authority": {
+      "$ref": "#/$defs/authority"
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10000,
+      "items": {
+        "$ref": "#/$defs/action"
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": {
+        "$ref": "#/$defs/artifact"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10000,
+      "items": {
+        "$ref": "#/$defs/evidence"
+      }
+    },
+    "outcome": {
+      "$ref": "#/$defs/outcome"
+    },
+    "verification": {
+      "$ref": "#/$defs/verification"
+    },
+    "cost": {
+      "$ref": "#/$defs/cost"
+    },
+    "lineage": {
+      "$ref": "#/$defs/lineage"
+    },
+    "human_interventions": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": {
+        "$ref": "#/$defs/human_intervention"
+      }
+    },
+    "timestamps": {
+      "$ref": "#/$defs/timestamps"
+    },
+    "integrity": {
+      "$ref": "#/$defs/integrity"
+    },
+    "extensions": {
+      "$ref": "#/$defs/json_object",
+      "description": "Namespaced producer or consumer extensions. Core interoperability must not depend on extension fields."
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "\\S"
+    },
+    "short_string": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "\\S"
+    },
+    "long_string": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 20000,
+      "pattern": "\\S"
+    },
+    "json_value": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/json_object"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/json_value"
+          }
+        }
+      ]
+    },
+    "json_object": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/json_value"
+      }
+    },
+    "digest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "value"],
+      "properties": {
+        "algorithm": {
+          "$ref": "#/$defs/short_string",
+          "description": "Digest algorithm such as sha256, sha512, or blake3."
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        },
+        "encoding": {
+          "type": "string",
+          "enum": ["hex", "base64", "base64url"]
+        }
+      }
+    },
+    "external_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["system", "type", "id"],
+      "properties": {
+        "system": {
+          "$ref": "#/$defs/short_string",
+          "description": "Owning namespace or protocol, for example git, github, mcp, a2a, opentelemetry, or a vendor-defined system."
+        },
+        "type": {
+          "$ref": "#/$defs/short_string"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "uri": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192,
+          "format": "uri-reference"
+        },
+        "version": {
+          "$ref": "#/$defs/short_string"
+        },
+        "digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "metadata": {
+          "$ref": "#/$defs/json_object"
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/short_string"
+        },
+        "version": {
+          "$ref": "#/$defs/short_string"
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "name"],
+      "properties": {
+        "provider": {
+          "$ref": "#/$defs/short_string"
+        },
+        "name": {
+          "$ref": "#/$defs/short_string"
+        },
+        "version": {
+          "$ref": "#/$defs/short_string"
+        }
+      }
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["agent", "service", "human", "team", "system", "other"]
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "display_name": {
+          "$ref": "#/$defs/short_string"
+        },
+        "runtime": {
+          "$ref": "#/$defs/runtime"
+        },
+        "model": {
+          "$ref": "#/$defs/model"
+        },
+        "external_refs": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/external_reference"
+          }
+        },
+        "metadata": {
+          "$ref": "#/$defs/json_object"
+        }
+      }
+    },
+    "intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary"],
+      "properties": {
+        "summary": {
+          "$ref": "#/$defs/long_string"
+        },
+        "objective": {
+          "$ref": "#/$defs/long_string"
+        },
+        "acceptance_criteria": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/long_string"
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/long_string"
+          }
+        },
+        "request_ref": {
+          "$ref": "#/$defs/external_reference"
+        },
+        "metadata": {
+          "$ref": "#/$defs/json_object"
+        }
+      }
+    },
+    "money_limit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currency", "amount"],
+      "properties": {
+        "currency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 12,
+          "pattern": "^[A-Z][A-Z0-9_-]+$"
+        },
+        "amount": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "authority_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actions", "resources"],
+      "properties": {
+        "actions": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/short_string"
+          }
+        },
+        "resources": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/external_reference"
+          }
+        },
+        "systems": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/short_string"
+          }
+        },
+        "spend_limit": {
+          "$ref": "#/$defs/money_limit"
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "approver", "occurred_at"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["requested", "granted", "denied", "revoked", "expired"]
+        },
+        "approver": {
+          "$ref": "#/$defs/actor"
+        },
+        "scope": {
+          "$ref": "#/$defs/long_string"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ref": {
+          "$ref": "#/$defs/external_reference"
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "status", "scope"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "explicit",
+            "delegated",
+            "inherited",
+            "policy",
+            "none",
+            "unknown"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["granted", "restricted", "denied", "expired", "unknown"]
+        },
+        "scope": {
+          "$ref": "#/$defs/authority_scope"
+        },
+        "delegated_by": {
+          "$ref": "#/$defs/actor"
+        },
+        "authorization_ref": {
+          "$ref": "#/$defs/external_reference"
+        },
+        "approvals": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/approval"
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/long_string"
+          }
+        },
+        "valid_from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "valid_until": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "metadata": {
+          "$ref": "#/$defs/json_object"
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "summary", "status"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "$ref": "#/$defs/short_string"
+        },
+        "summary": {
+          "$ref": "#/$defs/long_string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "running",
+            "completed",
+            "failed",
+            "skipped",
+            "blocked"
+          ]
+        },
+        "system": {
+          "$ref": "#/$defs/short_string"
+        },
+        "tool_ref": {
+          "$ref": "#/$defs/external_reference"
+        },
+        "target_refs": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/external_reference"
+          }
+        },
+        "input_refs": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/external_reference"
+          }
+        },
+        "output_refs": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/external_reference"
+          }
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "error": {
+          "$ref": "#/$defs/long_string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/json_object"
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "name", "ref"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "$ref": "#/$defs/short_string"
+        },
+        "name": {
+          "$ref": "#/$defs/short_string"
+        },
+        "ref": {
+          "$ref": "#/$defs/external_reference"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["input", "intermediate", "output", "log", "report", "other"]
+        },
+        "media_type": {
+          "$ref": "#/$defs/short_string"
+        },
+        "digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "metadata": {
+          "$ref": "#/$defs/json_object"
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "summary", "observed_at"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "$ref": "#/$defs/short_string"
+        },
+        "summary": {
+          "$ref": "#/$defs/long_string"
+        },
+        "ref": {
+          "$ref": "#/$defs/external_reference"
+        },
+        "digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "excerpt": {
+          "$ref": "#/$defs/long_string"
+        },
+        "supports": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/short_string"
+          }
+        },
+        "metadata": {
+          "$ref": "#/$defs/json_object"
+        }
+      }
+    },
+    "outcome_metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "value", "unit"],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/short_string"
+        },
+        "value": {
+          "type": "number",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "unit": {
+          "$ref": "#/$defs/short_string"
+        },
+        "baseline": {
+          "type": "number",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "target": {
+          "type": "number",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        }
+      }
+    },
+    "acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["pending", "accepted", "rejected", "changes_requested"]
+        },
+        "actor": {
+          "$ref": "#/$defs/actor"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "notes": {
+          "$ref": "#/$defs/long_string"
+        }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "summary"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "succeeded",
+            "partially_succeeded",
+            "failed",
+            "blocked",
+            "cancelled",
+            "unknown"
+          ]
+        },
+        "summary": {
+          "$ref": "#/$defs/long_string"
+        },
+        "observed_effects": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/long_string"
+          }
+        },
+        "metrics": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/outcome_metric"
+          }
+        },
+        "acceptance": {
+          "$ref": "#/$defs/acceptance"
+        },
+        "metadata": {
+          "$ref": "#/$defs/json_object"
+        }
+      }
+    },
+    "verification_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "status", "evidence_ids"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "$ref": "#/$defs/short_string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["passed", "failed", "skipped", "inconclusive"]
+        },
+        "method": {
+          "$ref": "#/$defs/long_string"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "details": {
+          "$ref": "#/$defs/long_string"
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "method", "checks", "evidence_ids"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["unverified", "passed", "failed", "partial", "inconclusive"]
+        },
+        "method": {
+          "$ref": "#/$defs/long_string"
+        },
+        "verifier": {
+          "$ref": "#/$defs/actor"
+        },
+        "checks": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": {
+            "$ref": "#/$defs/verification_check"
+          }
+        },
+        "evidence_ids": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "verified_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "notes": {
+          "$ref": "#/$defs/long_string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/json_object"
+        }
+      }
+    },
+    "cost_component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "amount"],
+      "properties": {
+        "category": {
+          "$ref": "#/$defs/short_string"
+        },
+        "amount": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "description": {
+          "$ref": "#/$defs/long_string"
+        }
+      }
+    },
+    "usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "quantity", "unit"],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/short_string"
+        },
+        "quantity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "unit": {
+          "$ref": "#/$defs/short_string"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "cost": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currency", "total"],
+      "properties": {
+        "currency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 12,
+          "pattern": "^[A-Z][A-Z0-9_-]+$"
+        },
+        "total": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "components": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/cost_component"
+          }
+        },
+        "usage": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/usage"
+          }
+        },
+        "human_minutes": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "estimated": {
+          "type": "boolean"
+        },
+        "metadata": {
+          "$ref": "#/$defs/json_object"
+        }
+      }
+    },
+    "lineage_edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relationship", "ref"],
+      "properties": {
+        "relationship": {
+          "$ref": "#/$defs/short_string",
+          "description": "Producer-defined relationship such as produced_from, depends_on, supersedes, retries, or trace."
+        },
+        "ref": {
+          "$ref": "#/$defs/external_reference"
+        }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parent_receipt_refs", "references"],
+      "properties": {
+        "run_ref": {
+          "$ref": "#/$defs/external_reference"
+        },
+        "parent_receipt_refs": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/external_reference"
+          }
+        },
+        "references": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": {
+            "$ref": "#/$defs/lineage_edge"
+          }
+        },
+        "trace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "span_id": {
+          "$ref": "#/$defs/id"
+        },
+        "metadata": {
+          "$ref": "#/$defs/json_object"
+        }
+      }
+    },
+    "human_intervention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "actor", "summary", "occurred_at"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "approval",
+            "correction",
+            "input",
+            "execution",
+            "escalation",
+            "override",
+            "review",
+            "other"
+          ]
+        },
+        "actor": {
+          "$ref": "#/$defs/actor"
+        },
+        "summary": {
+          "$ref": "#/$defs/long_string"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "duration_minutes": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "evidence_ids": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "refs": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/external_reference"
+          }
+        },
+        "metadata": {
+          "$ref": "#/$defs/json_object"
+        }
+      }
+    },
+    "timestamps": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["started_at", "completed_at", "issued_at"],
+      "properties": {
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "issued_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "encoding", "value", "key_id"],
+      "properties": {
+        "algorithm": {
+          "const": "ed25519"
+        },
+        "encoding": {
+          "const": "base64url"
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{85}[AQgw]$",
+          "description": "An unpadded canonical base64url encoding of the 64-byte Ed25519 signature."
+        },
+        "key_id": {
+          "$ref": "#/$defs/id"
+        },
+        "signer": {
+          "$ref": "#/$defs/actor"
+        },
+        "signed_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content_hash"],
+      "properties": {
+        "content_hash": {
+          "$ref": "#/$defs/content_hash",
+          "description": "Digest of RFC 8785 canonical JSON for this receipt with the integrity property omitted."
+        },
+        "signatures": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "description": "Ed25519 signatures over the domain-separated agent-work-receipt-signature/v0.1 canonical payload. Key resolution and signer trust are consumer policy.",
+          "items": {
+            "$ref": "#/$defs/signature"
+          }
+        }
+      }
+    },
+    "content_hash": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "value"],
+      "properties": {
+        "algorithm": {
+          "enum": ["sha-256", "sha256"]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "encoding": {
+          "type": "string",
+          "enum": ["hex", "base64", "base64url"]
+        }
+      },
+      "oneOf": [
+        {
+          "not": {
+            "properties": { "encoding": true },
+            "required": ["encoding"]
+          },
+          "properties": {
+            "value": {
+              "type": "string",
+              "pattern": "^[0-9A-Fa-f]{64}$"
+            }
+          }
+        },
+        {
+          "required": ["encoding"],
+          "properties": {
+            "encoding": { "const": "hex" },
+            "value": {
+              "type": "string",
+              "pattern": "^[0-9A-Fa-f]{64}$"
+            }
+          }
+        },
+        {
+          "required": ["encoding"],
+          "properties": {
+            "encoding": { "const": "base64" },
+            "value": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9+/]{42}[AEIMQUYcgkosw048]=$"
+            }
+          }
+        },
+        {
+          "required": ["encoding"],
+          "properties": {
+            "encoding": { "const": "base64url" },
+            "value": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

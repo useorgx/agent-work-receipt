@@ -1,0 +1,75 @@
+{
+  "schema_version": "agent-work-receipt/v0.1",
+  "receipt_id": "awr:invalid:unresolved-evidence",
+  "intent": {
+    "summary": "Demonstrate evidence-reference integrity."
+  },
+  "actor": {
+    "type": "agent",
+    "id": "example-agent"
+  },
+  "authority": {
+    "mode": "delegated",
+    "status": "restricted",
+    "scope": {
+      "actions": ["read_source", "run_check"],
+      "resources": []
+    }
+  },
+  "actions": [
+    {
+      "id": "action-example",
+      "type": "example.run",
+      "summary": "Produced an example result.",
+      "status": "completed",
+      "started_at": "2026-07-19T15:00:00Z",
+      "completed_at": "2026-07-19T15:01:00Z"
+    }
+  ],
+  "artifacts": [],
+  "evidence": [
+    {
+      "id": "evidence-present",
+      "kind": "test_result",
+      "summary": "A different evidence record is present.",
+      "observed_at": "2026-07-19T15:01:00Z"
+    }
+  ],
+  "outcome": {
+    "status": "succeeded",
+    "summary": "The example result was produced."
+  },
+  "verification": {
+    "status": "passed",
+    "method": "Example deterministic check.",
+    "verifier": {
+      "type": "service",
+      "id": "example-verifier"
+    },
+    "checks": [
+      {
+        "id": "check-example",
+        "name": "Example check",
+        "status": "passed",
+        "evidence_ids": ["evidence-missing"]
+      }
+    ],
+    "evidence_ids": ["evidence-missing"],
+    "verified_at": "2026-07-19T15:01:00Z"
+  },
+  "cost": {
+    "currency": "USD",
+    "total": 0,
+    "estimated": false
+  },
+  "lineage": {
+    "parent_receipt_refs": [],
+    "references": []
+  },
+  "human_interventions": [],
+  "timestamps": {
+    "started_at": "2026-07-19T15:00:00Z",
+    "completed_at": "2026-07-19T15:01:00Z",
+    "issued_at": "2026-07-19T15:01:00Z"
+  }
+}

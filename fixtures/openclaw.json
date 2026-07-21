@@ -1,0 +1,204 @@
+{
+  "schema_version": "agent-work-receipt/v0.1",
+  "receipt_id": "openclaw:event:evt-704",
+  "intent": {
+    "summary": "Invoke an MCP tool and preserve the resulting A2A task and trace lineage.",
+    "objective": "Demonstrate a receipt that crosses MCP, A2A, and OpenTelemetry boundaries."
+  },
+  "actor": {
+    "type": "agent",
+    "id": "openclaw-worker-3",
+    "display_name": "OpenClaw worker",
+    "runtime": {
+      "name": "openclaw",
+      "version": "fixture"
+    }
+  },
+  "authority": {
+    "mode": "policy",
+    "status": "restricted",
+    "scope": {
+      "actions": ["mcp.tools/call:example.lookup"],
+      "resources": [
+        {
+          "system": "mcp",
+          "type": "server",
+          "id": "example-server"
+        }
+      ],
+      "systems": ["mcp", "a2a"]
+    },
+    "authorization_ref": {
+      "system": "openclaw",
+      "type": "policy",
+      "id": "policy/read-only-tools/v2",
+      "version": "2"
+    }
+  },
+  "actions": [
+    {
+      "id": "mcp-call-1",
+      "type": "mcp.tools/call",
+      "summary": "Called the read-only example.lookup MCP tool.",
+      "status": "completed",
+      "system": "mcp",
+      "tool_ref": {
+        "system": "mcp",
+        "type": "tool",
+        "id": "example.lookup"
+      },
+      "output_refs": [
+        {
+          "system": "a2a",
+          "type": "task",
+          "id": "task-9901"
+        }
+      ],
+      "started_at": "2026-07-19T17:00:00.100Z",
+      "completed_at": "2026-07-19T17:00:00.450Z"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "lookup-result",
+      "kind": "mcp_result",
+      "name": "example.lookup result",
+      "role": "output",
+      "ref": {
+        "system": "a2a",
+        "type": "artifact",
+        "id": "artifact-9901",
+        "uri": "urn:a2a:artifact:9901"
+      },
+      "media_type": "application/json",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "3333333333333333333333333333333333333333333333333333333333333333",
+        "encoding": "hex"
+      },
+      "created_at": "2026-07-19T17:00:00.450Z"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "mcp-response",
+      "kind": "protocol_response",
+      "summary": "The MCP call returned a successful structured result.",
+      "ref": {
+        "system": "mcp",
+        "type": "call",
+        "id": "call-704"
+      },
+      "observed_at": "2026-07-19T17:00:00.450Z",
+      "supports": ["action:mcp-call-1", "outcome"]
+    },
+    {
+      "id": "trace-span",
+      "kind": "trace",
+      "summary": "The OpenTelemetry span closed without error.",
+      "ref": {
+        "system": "opentelemetry",
+        "type": "span",
+        "id": "span-0123456789abcdef"
+      },
+      "observed_at": "2026-07-19T17:00:00.460Z"
+    }
+  ],
+  "outcome": {
+    "status": "succeeded",
+    "summary": "The MCP lookup completed and its result is addressable as an A2A artifact."
+  },
+  "verification": {
+    "status": "passed",
+    "method": "Protocol response status and trace-span status check.",
+    "verifier": {
+      "type": "service",
+      "id": "openclaw-receipt-verifier"
+    },
+    "checks": [
+      {
+        "id": "check-mcp-status",
+        "name": "MCP response status",
+        "status": "passed",
+        "evidence_ids": ["mcp-response"]
+      },
+      {
+        "id": "check-trace-status",
+        "name": "Trace span status",
+        "status": "passed",
+        "evidence_ids": ["trace-span"]
+      }
+    ],
+    "evidence_ids": ["mcp-response", "trace-span"],
+    "verified_at": "2026-07-19T17:00:00.460Z"
+  },
+  "cost": {
+    "currency": "USD",
+    "total": 0.002,
+    "components": [
+      {
+        "category": "tool",
+        "amount": 0.002,
+        "description": "Fixture MCP tool cost."
+      }
+    ],
+    "usage": [
+      {
+        "name": "mcp_calls",
+        "quantity": 1,
+        "unit": "calls",
+        "cost": 0.002
+      }
+    ],
+    "human_minutes": 0,
+    "estimated": false
+  },
+  "lineage": {
+    "run_ref": {
+      "system": "openclaw",
+      "type": "event",
+      "id": "evt-704"
+    },
+    "parent_receipt_refs": [],
+    "references": [
+      {
+        "relationship": "produced_task",
+        "ref": {
+          "system": "a2a",
+          "type": "task",
+          "id": "task-9901"
+        }
+      },
+      {
+        "relationship": "invoked_tool",
+        "ref": {
+          "system": "mcp",
+          "type": "tool",
+          "id": "example.lookup"
+        }
+      },
+      {
+        "relationship": "traced_by",
+        "ref": {
+          "system": "opentelemetry",
+          "type": "trace",
+          "id": "trace-0123456789abcdef0123456789abcdef"
+        }
+      }
+    ],
+    "trace_id": "0123456789abcdef0123456789abcdef",
+    "span_id": "0123456789abcdef"
+  },
+  "human_interventions": [],
+  "timestamps": {
+    "started_at": "2026-07-19T17:00:00.100Z",
+    "completed_at": "2026-07-19T17:00:00.460Z",
+    "issued_at": "2026-07-19T17:00:00.470Z",
+    "duration_ms": 360
+  },
+  "extensions": {
+    "io.openclaw": {
+      "gateway": "fixture"
+    }
+  }
+}

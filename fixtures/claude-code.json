@@ -1,0 +1,215 @@
+{
+  "schema_version": "agent-work-receipt/v0.1",
+  "receipt_id": "claude-code/session/example-17",
+  "intent": {
+    "summary": "Update a deployment configuration after explicit human approval.",
+    "objective": "Apply the approved configuration and preserve its approval and test evidence.",
+    "request_ref": {
+      "system": "claude-code",
+      "type": "session",
+      "id": "example-session-17"
+    }
+  },
+  "actor": {
+    "type": "agent",
+    "id": "claude-code-agent",
+    "display_name": "Claude Code",
+    "runtime": {
+      "name": "claude-code",
+      "version": "fixture"
+    },
+    "model": {
+      "provider": "anthropic",
+      "name": "fixture-model"
+    }
+  },
+  "authority": {
+    "mode": "explicit",
+    "status": "granted",
+    "scope": {
+      "actions": ["edit_deployment_config"],
+      "resources": [
+        {
+          "system": "git",
+          "type": "file",
+          "id": "infra/example.yaml"
+        }
+      ]
+    },
+    "approvals": [
+      {
+        "status": "granted",
+        "approver": {
+          "type": "human",
+          "id": "release-owner",
+          "display_name": "Release owner"
+        },
+        "scope": "Edit infra/example.yaml and run the configuration check.",
+        "occurred_at": "2026-07-19T16:01:00Z",
+        "ref": {
+          "system": "claude-code",
+          "type": "approval",
+          "id": "approval-example-17"
+        }
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "edit-config",
+      "type": "file.edit",
+      "summary": "Updated the approved deployment configuration.",
+      "status": "completed",
+      "system": "git",
+      "target_refs": [
+        {
+          "system": "git",
+          "type": "file",
+          "id": "infra/example.yaml"
+        }
+      ],
+      "started_at": "2026-07-19T16:02:00Z",
+      "completed_at": "2026-07-19T16:03:00Z"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "deployment-diff",
+      "kind": "source_diff",
+      "name": "Approved deployment configuration diff",
+      "role": "output",
+      "ref": {
+        "system": "git",
+        "type": "diff",
+        "id": "diff:infra/example.yaml"
+      },
+      "media_type": "text/x-diff",
+      "created_at": "2026-07-19T16:03:00Z"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "approval-evidence",
+      "kind": "approval",
+      "summary": "The release owner approved the bounded edit.",
+      "ref": {
+        "system": "claude-code",
+        "type": "approval",
+        "id": "approval-example-17"
+      },
+      "observed_at": "2026-07-19T16:01:00Z"
+    },
+    {
+      "id": "configuration-test",
+      "kind": "test_result",
+      "summary": "The deployment configuration check passed.",
+      "ref": {
+        "system": "ci",
+        "type": "check",
+        "id": "config-check-882"
+      },
+      "observed_at": "2026-07-19T16:04:00Z",
+      "excerpt": "configuration valid"
+    }
+  ],
+  "outcome": {
+    "status": "succeeded",
+    "summary": "The approved configuration change passed its deterministic check.",
+    "acceptance": {
+      "status": "accepted",
+      "actor": {
+        "type": "human",
+        "id": "release-owner"
+      },
+      "occurred_at": "2026-07-19T16:05:00Z",
+      "evidence_ids": ["approval-evidence", "configuration-test"]
+    }
+  },
+  "verification": {
+    "status": "passed",
+    "method": "Configuration parser check.",
+    "verifier": {
+      "type": "service",
+      "id": "configuration-checker"
+    },
+    "checks": [
+      {
+        "id": "parse-config",
+        "name": "Parse deployment configuration",
+        "status": "passed",
+        "evidence_ids": ["configuration-test"]
+      }
+    ],
+    "evidence_ids": ["configuration-test"],
+    "verified_at": "2026-07-19T16:04:00Z"
+  },
+  "cost": {
+    "currency": "USD",
+    "total": 0,
+    "human_minutes": 1,
+    "estimated": true
+  },
+  "lineage": {
+    "run_ref": {
+      "system": "claude-code",
+      "type": "session",
+      "id": "example-session-17"
+    },
+    "parent_receipt_refs": [
+      {
+        "system": "agent-work-receipt",
+        "type": "receipt",
+        "id": "prior/example-16"
+      }
+    ],
+    "references": [
+      {
+        "relationship": "changes",
+        "ref": {
+          "system": "git",
+          "type": "file",
+          "id": "infra/example.yaml"
+        }
+      }
+    ]
+  },
+  "human_interventions": [
+    {
+      "id": "human-approval",
+      "kind": "approval",
+      "actor": {
+        "type": "human",
+        "id": "release-owner"
+      },
+      "summary": "Approved the bounded deployment configuration edit.",
+      "occurred_at": "2026-07-19T16:01:00Z",
+      "duration_minutes": 1,
+      "evidence_ids": ["approval-evidence"]
+    }
+  ],
+  "timestamps": {
+    "started_at": "2026-07-19T16:00:00Z",
+    "completed_at": "2026-07-19T16:05:00Z",
+    "issued_at": "2026-07-19T16:05:01Z"
+  },
+  "integrity": {
+    "content_hash": {
+      "algorithm": "sha-256",
+      "value": "7f0270883af34ebcb36aa77e684d4771e9308d85b7d01aec2f65ef0ebb41a4c5",
+      "encoding": "hex"
+    },
+    "signatures": [
+      {
+        "algorithm": "ed25519",
+        "encoding": "base64url",
+        "value": "GfYqB2Ma7m-NDFsKFKI_o5bxuaY9Vaz3vsGQlb03ulDMcKwOQ27elIBjNxsPTN2dEmECmhAVpBnYkBeDWKRgDA",
+        "key_id": "rfc8032-test-key-1",
+        "signer": {
+          "type": "service",
+          "id": "claude-code-receipt-emitter"
+        },
+        "signed_at": "2026-07-19T16:05:02Z"
+      }
+    ]
+  }
+}

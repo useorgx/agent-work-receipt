@@ -1,0 +1,269 @@
+{
+  "vector_version": "agent-work-receipt-integrity-vectors/v0.1",
+  "canonicalization": "RFC 8785",
+  "content_hash": {
+    "algorithm": "sha-256",
+    "scope": "receipt_without_integrity",
+    "input_encoding": "utf-8"
+  },
+  "canonicalization_vectors": [
+    {
+      "name": "rfc-8785-numbers-and-string-escaping",
+      "input": {
+        "numbers": [333333333.3333333, 1e30, 4.5, 0.002, 1e-27],
+        "string": "€$\u000f\nA'B\"\\\"/",
+        "literals": [null, true, false]
+      },
+      "canonical_json": "{\"literals\":[null,true,false],\"numbers\":[333333333.3333333,1e+30,4.5,0.002,1e-27],\"string\":\"€$\\u000f\\nA'B\\\"\\\\\\\"/\"}",
+      "sha256_hex": "6d77565c0fe51d7346bd5debb08f2eebbe9bde01eade30b34e2011f360f91b0e"
+    },
+    {
+      "name": "rfc-8785-utf16-property-order",
+      "input": {
+        "\r": "Carriage Return",
+        "1": "One",
+        "\u0080": "Control",
+        "ö": "Latin Small Letter O With Diaeresis",
+        "€": "Euro Sign",
+        "😀": "Emoji: Grinning Face",
+        "דּ": "Hebrew Letter Dalet With Dagesh"
+      },
+      "canonical_json": "{\"\\r\":\"Carriage Return\",\"1\":\"One\",\"\":\"Control\",\"ö\":\"Latin Small Letter O With Diaeresis\",\"€\":\"Euro Sign\",\"😀\":\"Emoji: Grinning Face\",\"דּ\":\"Hebrew Letter Dalet With Dagesh\"}",
+      "sha256_hex": "5e321556d22018a9656991a9e94f77ec175fa193e52a2429d312f8419ec8b08c"
+    }
+  ],
+  "number_serialization_vectors": [
+    { "ieee754": "0000000000000000", "input": 0, "canonical_json": "0" },
+    { "ieee754": "8000000000000000", "input": -0, "canonical_json": "0" },
+    {
+      "ieee754": "0000000000000001",
+      "input": 5e-324,
+      "canonical_json": "5e-324"
+    },
+    {
+      "ieee754": "8000000000000001",
+      "input": -5e-324,
+      "canonical_json": "-5e-324"
+    },
+    {
+      "ieee754": "7fefffffffffffff",
+      "input": 1.7976931348623157e308,
+      "canonical_json": "1.7976931348623157e+308"
+    },
+    {
+      "ieee754": "ffefffffffffffff",
+      "input": -1.7976931348623157e308,
+      "canonical_json": "-1.7976931348623157e+308"
+    },
+    {
+      "ieee754": "4340000000000000",
+      "input": 9007199254740992,
+      "canonical_json": "9007199254740992"
+    },
+    {
+      "ieee754": "c340000000000000",
+      "input": -9007199254740992,
+      "canonical_json": "-9007199254740992"
+    },
+    {
+      "ieee754": "4430000000000000",
+      "input": 295147905179352830000,
+      "canonical_json": "295147905179352830000"
+    },
+    {
+      "ieee754": "44b52d02c7e14af5",
+      "input": 9.999999999999997e22,
+      "canonical_json": "9.999999999999997e+22"
+    },
+    { "ieee754": "44b52d02c7e14af6", "input": 1e23, "canonical_json": "1e+23" },
+    {
+      "ieee754": "44b52d02c7e14af7",
+      "input": 1.0000000000000001e23,
+      "canonical_json": "1.0000000000000001e+23"
+    },
+    {
+      "ieee754": "444b1ae4d6e2ef4e",
+      "input": 999999999999999700000,
+      "canonical_json": "999999999999999700000"
+    },
+    {
+      "ieee754": "444b1ae4d6e2ef4f",
+      "input": 999999999999999900000,
+      "canonical_json": "999999999999999900000"
+    },
+    { "ieee754": "444b1ae4d6e2ef50", "input": 1e21, "canonical_json": "1e+21" },
+    {
+      "ieee754": "3eb0c6f7a0b5ed8c",
+      "input": 9.999999999999997e-7,
+      "canonical_json": "9.999999999999997e-7"
+    },
+    {
+      "ieee754": "3eb0c6f7a0b5ed8d",
+      "input": 0.000001,
+      "canonical_json": "0.000001"
+    },
+    {
+      "ieee754": "41b3de4355555553",
+      "input": 333333333.3333332,
+      "canonical_json": "333333333.3333332"
+    },
+    {
+      "ieee754": "41b3de4355555554",
+      "input": 333333333.33333325,
+      "canonical_json": "333333333.33333325"
+    },
+    {
+      "ieee754": "41b3de4355555555",
+      "input": 333333333.3333333,
+      "canonical_json": "333333333.3333333"
+    },
+    {
+      "ieee754": "41b3de4355555556",
+      "input": 333333333.3333334,
+      "canonical_json": "333333333.3333334"
+    },
+    {
+      "ieee754": "41b3de4355555557",
+      "input": 333333333.33333343,
+      "canonical_json": "333333333.33333343"
+    },
+    {
+      "ieee754": "becbf647612f3696",
+      "input": -0.0000033333333333333333,
+      "canonical_json": "-0.0000033333333333333333"
+    },
+    {
+      "ieee754": "43143ff3c1cb0959",
+      "input": 1424953923781206.2,
+      "canonical_json": "1424953923781206.2"
+    }
+  ],
+  "canonical_equivalence_vectors": [
+    {
+      "name": "recursive-object-member-order",
+      "left": { "z": 1, "nested": { "b": 2, "a": 3 } },
+      "right": { "nested": { "a": 3, "b": 2 }, "z": 1 },
+      "canonical_json": "{\"nested\":{\"a\":3,\"b\":2},\"z\":1}"
+    },
+    {
+      "name": "ordinary-toJSON-member-order",
+      "left": { "z": 2, "toJSON": "ordinary-member", "a": 1 },
+      "right": { "a": 1, "toJSON": "ordinary-member", "z": 2 },
+      "canonical_json": "{\"a\":1,\"toJSON\":\"ordinary-member\",\"z\":2}"
+    }
+  ],
+  "canonical_difference_vectors": [
+    {
+      "name": "array-order-is-preserved",
+      "left": { "items": [1, 2, 3] },
+      "right": { "items": [3, 2, 1] }
+    },
+    {
+      "name": "unicode-is-not-normalized",
+      "left": "é",
+      "right": "é"
+    }
+  ],
+  "raw_json_negative_vectors": [
+    {
+      "name": "duplicate-root-member-after-escape-decoding",
+      "raw_json": "{\"member\":1,\"m\\u0065mber\":2}",
+      "member": "member",
+      "path": "/member"
+    },
+    {
+      "name": "duplicate-nested-member",
+      "raw_json": "{\"outer\":{\"same\":1,\"same\":2}}",
+      "member": "same",
+      "path": "/outer/same"
+    }
+  ],
+  "receipt_vector": {
+    "fixture": "../fixtures/codex.json",
+    "sha256": {
+      "hex": "194e39caed53469a5fc76544763dd4af01da30f5b94202841bbfe871b628d195",
+      "base64": "GU45yu1TRppfx2VEdj3UrwHaMPW5QgKEG7/ocbYo0ZU=",
+      "base64url": "GU45yu1TRppfx2VEdj3UrwHaMPW5QgKEG7_ocbYo0ZU"
+    },
+    "tamper_vectors": [
+      {
+        "name": "outcome-summary-changed",
+        "operation": "replace",
+        "json_pointer": "/outcome/summary",
+        "value": "The portable receipt was tampered.",
+        "expected_sha256_hex": "f3ce7b76e4f02314036d70bb746bdd67b01b5d4c364642b0bbe6a77e036b6a18",
+        "expected_content_state": "mismatch"
+      },
+      {
+        "name": "reported-cost-changed",
+        "operation": "replace",
+        "json_pointer": "/cost/total",
+        "value": 0.09,
+        "expected_sha256_hex": "b5d7fb3f41f3d6ed4d924f2fc6dbad0ffeb2d179834ed4b12bd960dcc8f58de0",
+        "expected_content_state": "mismatch"
+      },
+      {
+        "name": "declared-hash-changed",
+        "operation": "replace",
+        "json_pointer": "/integrity/content_hash/value",
+        "value": "0000000000000000000000000000000000000000000000000000000000000000",
+        "expected_sha256_hex": "194e39caed53469a5fc76544763dd4af01da30f5b94202841bbfe871b628d195",
+        "expected_content_state": "mismatch"
+      }
+    ]
+  },
+  "signature_vector": {
+    "fixture": "../fixtures/claude-code.json",
+    "profile": "agent-work-receipt-signature/v0.1",
+    "algorithm": "ed25519",
+    "signature_encoding": "base64url",
+    "public_key": {
+      "encoding": "base64url",
+      "value": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"
+    },
+    "wrong_public_key": {
+      "encoding": "base64url",
+      "value": "PUAXw-hDiVqStwqnTRt-vJyYLM8uxJaMwM1V8Sr0Zgw",
+      "expected_cryptographic_state": "invalid"
+    },
+    "payload_canonical_json": "{\"content_hash\":{\"algorithm\":\"sha-256\",\"value\":\"7f0270883af34ebcb36aa77e684d4771e9308d85b7d01aec2f65ef0ebb41a4c5\"},\"profile\":\"agent-work-receipt-signature/v0.1\",\"protected\":{\"algorithm\":\"ed25519\",\"encoding\":\"base64url\",\"key_id\":\"rfc8032-test-key-1\",\"signed_at\":\"2026-07-19T16:05:02Z\",\"signer\":{\"id\":\"claude-code-receipt-emitter\",\"type\":\"service\"}}}",
+    "signature_base64url": "GfYqB2Ma7m-NDFsKFKI_o5bxuaY9Vaz3vsGQlb03ulDMcKwOQ27elIBjNxsPTN2dEmECmhAVpBnYkBeDWKRgDA",
+    "tamper_vectors": [
+      {
+        "name": "signature-byte-changed",
+        "json_pointer": "/integrity/signatures/0/value",
+        "value": "GfYqB2Ma7m-NDFsKFKI_o5bxuaY9Vaz3vsGQlb03ulDMcKwOQ27elIBjNxsPTN2dEmECmhAVpBnYkBeDWKRgDQ",
+        "expected_content_state": "verified",
+        "expected_cryptographic_state": "invalid"
+      },
+      {
+        "name": "protected-key-id-changed",
+        "json_pointer": "/integrity/signatures/0/key_id",
+        "value": "another-key",
+        "expected_content_state": "verified",
+        "expected_cryptographic_state": "invalid"
+      },
+      {
+        "name": "protected-signed-at-changed",
+        "json_pointer": "/integrity/signatures/0/signed_at",
+        "value": "2026-07-19T16:05:03Z",
+        "expected_content_state": "verified",
+        "expected_cryptographic_state": "invalid"
+      },
+      {
+        "name": "protected-signer-changed",
+        "json_pointer": "/integrity/signatures/0/signer/id",
+        "value": "different-emitter",
+        "expected_content_state": "verified",
+        "expected_cryptographic_state": "invalid"
+      },
+      {
+        "name": "declared-content-hash-changed",
+        "json_pointer": "/integrity/content_hash/value",
+        "value": "0f0270883af34ebcb36aa77e684d4771e9308d85b7d01aec2f65ef0ebb41a4c5",
+        "expected_content_state": "mismatch",
+        "expected_cryptographic_state": "invalid"
+      }
+    ]
+  }
+}

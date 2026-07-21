@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://useorgx.com/schemas/agent-work-receipt/integrity-report/v0.1/schema.json",
+  "title": "Agent Work Receipt integrity report v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "report_version",
+    "canonicalization",
+    "hash_scope",
+    "content_hash",
+    "signatures"
+  ],
+  "properties": {
+    "report_version": {
+      "const": "agent-work-receipt-integrity-report/v0.1"
+    },
+    "canonicalization": { "const": "RFC 8785" },
+    "hash_scope": { "const": "receipt_without_integrity" },
+    "content_hash": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "computed"],
+      "properties": {
+        "state": {
+          "enum": [
+            "not_present",
+            "verified",
+            "mismatch",
+            "unsupported",
+            "malformed"
+          ]
+        },
+        "computed": { "$ref": "#/$defs/computed_digest" },
+        "declared": { "$ref": "#/$defs/digest" }
+      },
+      "oneOf": [
+        {
+          "properties": { "state": { "const": "not_present" } },
+          "not": {
+            "properties": { "declared": {} },
+            "required": ["declared"]
+          }
+        },
+        {
+          "properties": {
+            "state": {
+              "enum": ["verified", "mismatch", "unsupported", "malformed"]
+            },
+            "declared": {}
+          },
+          "required": ["declared"]
+        }
+      ]
+    },
+    "signatures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "index",
+          "profile",
+          "algorithm",
+          "encoding",
+          "cryptographic_state",
+          "trust_state"
+        ],
+        "properties": {
+          "index": { "type": "integer", "minimum": 0 },
+          "profile": {
+            "const": "agent-work-receipt-signature/v0.1"
+          },
+          "algorithm": { "type": "string", "minLength": 1 },
+          "encoding": { "type": "string", "minLength": 1 },
+          "key_id": { "type": "string", "minLength": 1 },
+          "cryptographic_state": {
+            "enum": [
+              "not_checked",
+              "verified",
+              "invalid",
+              "unsupported",
+              "malformed",
+              "error"
+            ]
+          },
+          "trust_state": {
+            "enum": [
+              "not_evaluated",
+              "trusted",
+              "untrusted",
+              "unknown",
+              "error"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "computed_digest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "encoding", "value"],
+      "properties": {
+        "algorithm": { "const": "sha-256" },
+        "encoding": { "enum": ["hex", "base64", "base64url"] },
+        "value": { "type": "string" }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "encoding": { "const": "hex" },
+            "value": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+          }
+        },
+        {
+          "properties": {
+            "encoding": { "const": "base64" },
+            "value": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9+/]{42}[AEIMQUYcgkosw048]=$"
+            }
+          }
+        },
+        {
+          "properties": {
+            "encoding": { "const": "base64url" },
+            "value": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$"
+            }
+          }
+        }
+      ]
+    },
+    "digest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "value"],
+      "properties": {
+        "algorithm": { "type": "string", "minLength": 1 },
+        "value": { "type": "string", "minLength": 1 },
+        "encoding": { "enum": ["hex", "base64", "base64url"] }
+      }
+    }
+  }
+}
