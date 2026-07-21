@@ -6,7 +6,7 @@ a published release.
 
 ## Release gate
 
-1. Confirm `main` is clean and CI passes on Node.js 20.10.0, 22, and 24.
+1. Confirm `main` is clean and CI passes on Node.js 20.18.3, 22, and 24.
 2. Run `npm ci`, `npm run typecheck`, `npm test`, and `npm pack --dry-run`.
 3. Confirm `package.json` version and the intended `v<version>` tag match.
 4. Confirm the repository URL is exactly
