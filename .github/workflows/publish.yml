@@ -29,6 +29,5 @@ jobs:
       - name: Verify tag and package version
         run: |
           node --input-type=module -e "import pkg from './package.json' with { type: 'json' }; if (process.env.GITHUB_REF_NAME !== 'v' + pkg.version) process.exit(1)"
-      - run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish with npm trusted publishing
+        run: npm publish --access public --provenance
