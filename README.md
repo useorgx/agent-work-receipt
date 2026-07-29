@@ -173,6 +173,10 @@ and OpenTelemetry references in a single lineage record. The Claude Code fixture
 carries the deterministic Ed25519 conformance signature and a public test key is
 published in the integrity vectors; it is test material, not a production key.
 
+The [behavior-spec fixture](fixtures/braintrust-behavior-spec.json) demonstrates
+carrying an external trajectory-evaluation verdict — see
+[Carrying evaluation verdicts](#carrying-evaluation-verdicts).
+
 Two reusable negative fixtures demonstrate distinct failure boundaries:
 
 - [missing authority](fixtures/invalid-missing-authority.json) is structurally
@@ -203,6 +207,23 @@ Conforming signature verifiers must reproduce the published payload bytes and
 Ed25519 result. Altering `key_id`, `signed_at`, `signer`, signature bytes, or the
 declared digest must fail cryptographic verification. Signer trust remains a
 separate consumer decision.
+
+## Carrying evaluation verdicts
+
+Trajectory-evaluation standards such as
+[behavior specs](https://www.braintrust.dev/blog/behavior-specs) (Braintrust +
+Basis) compose with receipts rather than competing with them: the spec defines
+how the agent should work, the judge produces a verdict, and the receipt binds
+that verdict to the completed episode. The convention — verdicts as
+`verification.checks[]` entries (`true` → `passed`, `false` → `failed`, `NA` →
+`skipped` or `inconclusive` depending on the native `na_reason`), the exact spec
+pinned by name + producer revision + digest under an `evaluated_against` lineage
+edge, the judge as `verification.verifier`, and the rationale as evidence — is
+specified in
+[docs/agent-behavior-spec-crosswalk.md](docs/agent-behavior-spec-crosswalk.md)
+and demonstrated by
+[fixtures/braintrust-behavior-spec.json](fixtures/braintrust-behavior-spec.json).
+It introduces no new schema fields.
 
 ## Hosted OrgX import (optional)
 

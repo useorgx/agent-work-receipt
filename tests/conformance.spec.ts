@@ -1,6 +1,7 @@
 import Ajv2020 from 'ajv/dist/2020';
 import { describe, expect, it } from 'vitest';
 
+import behaviorSpecReceipt from '../fixtures/braintrust-behavior-spec.json';
 import claudeCodeReceipt from '../fixtures/claude-code.json';
 import codexReceipt from '../fixtures/codex.json';
 import missingAuthorityReceipt from '../fixtures/invalid-missing-authority.json';
@@ -22,6 +23,7 @@ const validFixtures = [
   ['Codex', codexReceipt],
   ['Claude Code', claudeCodeReceipt],
   ['OpenClaw', openClawReceipt],
+  ['Behavior spec crosswalk', behaviorSpecReceipt],
 ] as const;
 
 function clone(value: unknown): any {
