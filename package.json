@@ -19,6 +19,7 @@
     "schema",
     "fixtures",
     "conformance",
+    "docs",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"

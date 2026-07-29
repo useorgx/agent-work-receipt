@@ -1,0 +1,272 @@
+{
+  "schema_version": "agent-work-receipt/v0.1",
+  "receipt_id": "presentation-agent/episode/example-42",
+  "intent": {
+    "summary": "Validate and deliver the quarterly presentation deck.",
+    "objective": "Produce a deck the requester accepts, under the validate-rendered-deck behavior standard.",
+    "request_ref": {
+      "system": "basis",
+      "type": "task",
+      "id": "task-deck-q3"
+    }
+  },
+  "actor": {
+    "type": "agent",
+    "id": "presentation-agent",
+    "display_name": "Presentation Agent",
+    "runtime": {
+      "name": "basis",
+      "version": "fixture"
+    },
+    "model": {
+      "provider": "example",
+      "name": "fixture-model"
+    }
+  },
+  "authority": {
+    "mode": "delegated",
+    "status": "granted",
+    "scope": {
+      "actions": ["edit_presentation", "render_presentation"],
+      "resources": [
+        {
+          "system": "workspace",
+          "type": "file",
+          "id": "decks/q3-review.key"
+        }
+      ]
+    },
+    "approvals": [
+      {
+        "status": "granted",
+        "approver": {
+          "type": "human",
+          "id": "deck-requester",
+          "display_name": "Deck requester"
+        },
+        "scope": "Edit and render decks/q3-review.key until the review meeting.",
+        "occurred_at": "2026-07-28T14:00:00Z",
+        "ref": {
+          "system": "basis",
+          "type": "approval",
+          "id": "approval-deck-q3"
+        }
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "render-initial",
+      "type": "presentation.render",
+      "summary": "Rendered the current deck before making changes.",
+      "status": "completed",
+      "system": "workspace",
+      "target_refs": [
+        {
+          "system": "workspace",
+          "type": "file",
+          "id": "decks/q3-review.key"
+        }
+      ],
+      "started_at": "2026-07-28T14:01:00Z",
+      "completed_at": "2026-07-28T14:02:00Z"
+    },
+    {
+      "id": "inspect-and-fix",
+      "type": "presentation.edit",
+      "summary": "Inspected the render, found an overflowing chart, and repaired it.",
+      "status": "completed",
+      "system": "workspace",
+      "target_refs": [
+        {
+          "system": "workspace",
+          "type": "file",
+          "id": "decks/q3-review.key"
+        }
+      ],
+      "started_at": "2026-07-28T14:02:00Z",
+      "completed_at": "2026-07-28T14:09:00Z"
+    },
+    {
+      "id": "render-final",
+      "type": "presentation.render",
+      "summary": "Rendered the repaired deck before claiming it was validated.",
+      "status": "completed",
+      "system": "workspace",
+      "target_refs": [
+        {
+          "system": "workspace",
+          "type": "file",
+          "id": "decks/q3-review.key"
+        }
+      ],
+      "started_at": "2026-07-28T14:09:00Z",
+      "completed_at": "2026-07-28T14:10:00Z"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "validated-deck",
+      "kind": "presentation",
+      "name": "Q3 review deck",
+      "role": "output",
+      "ref": {
+        "system": "workspace",
+        "type": "file",
+        "id": "decks/q3-review.key"
+      },
+      "media_type": "application/vnd.apple.keynote",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "7af66f575dc76efc688b6880e073d1bb6a3cff2c444b731979c6c07511144514",
+        "encoding": "hex"
+      },
+      "created_at": "2026-07-28T14:10:00Z"
+    },
+    {
+      "id": "final-render",
+      "kind": "render",
+      "name": "Final rendered preview",
+      "role": "report",
+      "ref": {
+        "system": "workspace",
+        "type": "render",
+        "id": "renders/q3-review-final.pdf"
+      },
+      "media_type": "application/pdf",
+      "created_at": "2026-07-28T14:10:00Z"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "final-render-evidence",
+      "kind": "render",
+      "summary": "Rendered preview of the deck as delivered.",
+      "ref": {
+        "system": "workspace",
+        "type": "render",
+        "id": "renders/q3-review-final.pdf"
+      },
+      "observed_at": "2026-07-28T14:10:00Z"
+    },
+    {
+      "id": "judge-rationale",
+      "kind": "evaluation_rationale",
+      "summary": "The trajectory judge's rationale for the validate-rendered-deck verdict.",
+      "ref": {
+        "system": "braintrust",
+        "type": "evaluation",
+        "id": "eval-run-9001"
+      },
+      "observed_at": "2026-07-28T14:12:00Z",
+      "excerpt": "Agent rendered before and after editing and inspected the intermediate render; verdict true."
+    }
+  ],
+  "outcome": {
+    "status": "succeeded",
+    "summary": "The deck was repaired, re-rendered, and accepted by the requester.",
+    "acceptance": {
+      "status": "accepted",
+      "actor": {
+        "type": "human",
+        "id": "deck-requester"
+      },
+      "occurred_at": "2026-07-28T15:00:00Z",
+      "evidence_ids": ["final-render-evidence"]
+    }
+  },
+  "verification": {
+    "status": "passed",
+    "method": "Behavior spec trajectory evaluation.",
+    "verifier": {
+      "type": "service",
+      "id": "braintrust-trajectory-judge",
+      "display_name": "Braintrust trajectory judge"
+    },
+    "checks": [
+      {
+        "id": "behavior.validate-rendered-deck",
+        "name": "Behavior spec: validate-rendered-deck",
+        "status": "passed",
+        "method": "Trajectory judged against the referenced behavior spec; verdict true maps to passed.",
+        "evidence_ids": ["judge-rationale"],
+        "details": "verdict=true spec_name=validate-rendered-deck spec_revision=9b1c2d3"
+      }
+    ],
+    "evidence_ids": ["judge-rationale"],
+    "verified_at": "2026-07-28T14:12:00Z"
+  },
+  "cost": {
+    "currency": "USD",
+    "total": 4.2,
+    "human_minutes": 6,
+    "estimated": true
+  },
+  "lineage": {
+    "run_ref": {
+      "system": "basis",
+      "type": "session",
+      "id": "session-deck-q3"
+    },
+    "parent_receipt_refs": [],
+    "references": [
+      {
+        "relationship": "evaluated_against",
+        "ref": {
+          "system": "braintrust",
+          "type": "behavior_spec",
+          "id": "validate-rendered-deck",
+          "version": "9b1c2d3",
+          "digest": {
+            "algorithm": "sha256",
+            "value": "fa502df2c6b51b6b19b8822500007daf9704f35efc40295ee3f9356a5c7aebff",
+            "encoding": "hex"
+          }
+        }
+      },
+      {
+        "relationship": "trace",
+        "ref": {
+          "system": "braintrust",
+          "type": "trajectory",
+          "id": "tr-deck-q3-0429"
+        }
+      }
+    ]
+  },
+  "human_interventions": [
+    {
+      "id": "requester-review",
+      "kind": "review",
+      "actor": {
+        "type": "human",
+        "id": "deck-requester"
+      },
+      "summary": "Reviewed the final render and accepted the deck.",
+      "occurred_at": "2026-07-28T15:00:00Z",
+      "duration_minutes": 5,
+      "evidence_ids": ["final-render-evidence"]
+    }
+  ],
+  "timestamps": {
+    "started_at": "2026-07-28T14:00:00Z",
+    "completed_at": "2026-07-28T15:00:00Z",
+    "issued_at": "2026-07-28T15:00:01Z"
+  },
+  "extensions": {
+    "dev.braintrust.behavior_specs": {
+      "verdicts": [
+        {
+          "spec_name": "validate-rendered-deck",
+          "spec_revision": "9b1c2d3",
+          "verdict": "true",
+          "evaluation_ref": {
+            "system": "braintrust",
+            "type": "evaluation",
+            "id": "eval-run-9001"
+          }
+        }
+      ]
+    }
+  }
+}
