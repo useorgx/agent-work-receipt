@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.1 - 2026-09-24
+
+- Add a crosswalk from Agent Work Receipt fields to agent behavior specs
+  (`docs/agent-behavior-spec-crosswalk.md`) and a behavior-spec conformance
+  fixture (`fixtures/braintrust-behavior-spec.json`) covered by the
+  conformance suite.
+- Publish through npm trusted publishing only; the workflow holds no
+  long-lived npm token.
+
 ## 0.1.0 - 2026-07-21
 
 - Define the account-free Agent Work Receipt v0.1 schema and TypeScript types.
