@@ -1,4 +1,4 @@
-# Agent Work Receipt v0.1
+# Agent Work Receipt
 
 Agent Work Receipt is an account-free interchange contract for recording what an
 agent was asked to do, what authority it had, what it did, what changed, how the
@@ -12,8 +12,9 @@ represented without translation into an OrgX identifier.
 
 ## Contract
 
-- Schema version: `agent-work-receipt/v0.1`
-- JSON Schema: `schema/agent-work-receipt.v0.1.schema.json`
+- Schema versions: `agent-work-receipt/v0.1` and `agent-work-receipt/v0.2`
+- JSON Schemas: `schema/agent-work-receipt.v0.1.schema.json`, `schema/agent-work-receipt.v0.2.schema.json`
+- v0.2 adds optional fields only: identified acceptance criteria and their results, expected outcome ranges, per-field provenance, the trajectory of the work, and the workstream it belongs to. See [docs/v0.2.md](docs/v0.2.md).
 - Dialect: JSON Schema Draft 2020-12
 - License: Apache-2.0
 
@@ -250,7 +251,7 @@ request, response, and authentication details.
 
 ## Versioning
 
-`v0.1` is an interoperability preview. Producers must emit the exact
+`v0.1` and `v0.2` are interoperability previews; the validator dispatches on `schema_version`. Producers must emit the exact
 `schema_version` they implement. Breaking field or meaning changes require a new
 schema version; additions that older strict validators cannot accept also require
 a new version. Runtime-specific data belongs in namespaced `extensions` and must

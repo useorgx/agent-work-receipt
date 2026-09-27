@@ -4,6 +4,17 @@ export const AGENT_WORK_RECEIPT_SCHEMA_VERSION =
 export const AGENT_WORK_RECEIPT_SCHEMA_ID =
   'https://useorgx.com/schemas/agent-work-receipt/v0.1/schema.json' as const;
 
+/** v0.2 = v0.1 plus optional, additive fields (marked "v0.2" below). */
+export const AGENT_WORK_RECEIPT_SCHEMA_VERSION_V02 =
+  'agent-work-receipt/v0.2' as const;
+
+export const AGENT_WORK_RECEIPT_SCHEMA_ID_V02 =
+  'https://useorgx.com/schemas/agent-work-receipt/v0.2/schema.json' as const;
+
+export type AgentWorkReceiptSchemaVersion =
+  | typeof AGENT_WORK_RECEIPT_SCHEMA_VERSION
+  | typeof AGENT_WORK_RECEIPT_SCHEMA_VERSION_V02;
+
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
   | JsonPrimitive
@@ -62,7 +73,74 @@ export interface AgentWorkIntent {
   acceptance_criteria?: readonly string[];
   constraints?: readonly string[];
   request_ref?: AgentWorkExternalReference;
+  /** v0.2: identified acceptance criteria that results and checks can point at. */
+  criteria?: readonly AgentWorkCriterion[];
+  /** v0.2: the range of outcomes that would count. */
+  expected_outcomes?: readonly AgentWorkExpectedOutcome[];
   metadata?: JsonObject;
+}
+
+/** v0.2 */
+export interface AgentWorkCriterion {
+  id: string;
+  text: string;
+  kind?: string;
+  /** Defaults to true. */
+  required?: boolean;
+  source?: 'requested' | 'inferred' | 'policy' | 'agent_proposed';
+}
+
+/** v0.2 */
+export interface AgentWorkExpectedOutcome {
+  id: string;
+  description: string;
+  metric?: string;
+  unit?: string;
+  min?: number;
+  max?: number;
+  target?: number;
+}
+
+/** v0.2 */
+export interface AgentWorkCriterionResult {
+  criterion_id: string;
+  status: 'met' | 'unmet' | 'unknown' | 'waived';
+  evidence_ids: readonly string[];
+  /** In [0, 1]. */
+  confidence?: number;
+  decided_by?: AgentWorkActor;
+  notes?: string;
+}
+
+/** v0.2 */
+export interface AgentWorkExpectedResult {
+  expected_id: string;
+  status: 'within' | 'outside' | 'unknown';
+  observed?: number | string;
+  evidence_ids: readonly string[];
+  confidence?: number;
+}
+
+/** v0.2: how one value in the receipt was established. `path` is an RFC 6901 JSON Pointer. */
+export interface AgentWorkProvenanceEntry {
+  path: string;
+  basis: 'observed' | 'declared' | 'inferred' | 'human';
+  confidence?: number;
+  method?: string;
+  by?: AgentWorkActor;
+  at?: string;
+}
+
+/** v0.2: a turn in how the work went. */
+export interface AgentWorkTrajectoryStep {
+  id: string;
+  kind: 'change_of_course' | 'retry' | 'escalation' | 'handoff' | 'compaction' | 'pause' | 'resume';
+  summary: string;
+  trigger?: 'error' | 'denial' | 'human' | 'self' | 'policy' | 'timeout' | 'other';
+  occurred_at?: string;
+  action_ids?: readonly string[];
+  evidence_ids?: readonly string[];
+  confidence?: number;
 }
 
 export interface AgentWorkMoneyLimit {
@@ -175,6 +253,10 @@ export interface AgentWorkOutcome {
   observed_effects?: readonly string[];
   metrics?: readonly AgentWorkOutcomeMetric[];
   acceptance?: AgentWorkAcceptance;
+  /** v0.2 */
+  criteria_results?: readonly AgentWorkCriterionResult[];
+  /** v0.2 */
+  expected_results?: readonly AgentWorkExpectedResult[];
   metadata?: JsonObject;
 }
 
@@ -185,6 +267,8 @@ export interface AgentWorkVerificationCheck {
   method?: string;
   evidence_ids: readonly string[];
   details?: string;
+  /** v0.2: the criteria this check speaks to. */
+  criterion_ids?: readonly string[];
 }
 
 export interface AgentWorkVerification {
@@ -222,8 +306,11 @@ export interface AgentWorkCost {
 }
 
 export interface AgentWorkLineageEdge {
+  /** Recommended: produced_from, continues, retries, supersedes, depends_on, reviews, same_effort, trace. */
   relationship: string;
   ref: AgentWorkExternalReference;
+  /** v0.2: producer confidence in an inferred link, in [0, 1]. */
+  confidence?: number;
 }
 
 export interface AgentWorkLineage {
@@ -232,6 +319,8 @@ export interface AgentWorkLineage {
   references: readonly AgentWorkLineageEdge[];
   trace_id?: string;
   span_id?: string;
+  /** v0.2: the larger effort this piece of work belongs to. */
+  workstream_ref?: AgentWorkExternalReference;
   metadata?: JsonObject;
 }
 
@@ -278,7 +367,7 @@ export interface AgentWorkIntegrity {
 }
 
 export interface AgentWorkReceipt {
-  schema_version: typeof AGENT_WORK_RECEIPT_SCHEMA_VERSION;
+  schema_version: AgentWorkReceiptSchemaVersion;
   receipt_id: string;
   intent: AgentWorkIntent;
   actor: AgentWorkActor;
@@ -292,6 +381,10 @@ export interface AgentWorkReceipt {
   lineage: AgentWorkLineage;
   human_interventions: readonly AgentWorkHumanIntervention[];
   timestamps: AgentWorkTimestamps;
+  /** v0.2 */
+  provenance?: readonly AgentWorkProvenanceEntry[];
+  /** v0.2 */
+  trajectory?: readonly AgentWorkTrajectoryStep[];
   integrity?: AgentWorkIntegrity;
   extensions?: JsonObject;
 }

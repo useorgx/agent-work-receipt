@@ -1,0 +1,323 @@
+{
+  "schema_version": "agent-work-receipt/v0.2",
+  "receipt_id": "example-trail-v02-1",
+  "intent": {
+    "summary": "Update a deployment configuration after explicit human approval.",
+    "objective": "Apply the approved configuration and preserve its approval and test evidence.",
+    "request_ref": {
+      "system": "claude-code",
+      "type": "session",
+      "id": "example-session-17"
+    },
+    "criteria": [
+      {
+        "id": "c1",
+        "text": "The configuration parses after the change",
+        "kind": "typecheck",
+        "source": "inferred"
+      },
+      {
+        "id": "c2",
+        "text": "The change is approved by a person before it is applied",
+        "kind": "approval",
+        "source": "requested"
+      },
+      {
+        "id": "c3",
+        "text": "A pull request is opened",
+        "kind": "pull_request",
+        "required": false,
+        "source": "inferred"
+      }
+    ],
+    "acceptance_criteria": [
+      "The configuration parses after the change",
+      "The change is approved by a person before it is applied",
+      "A pull request is opened"
+    ],
+    "expected_outcomes": [
+      {
+        "id": "e1",
+        "description": "Deploy time stays under two minutes",
+        "metric": "deploy_seconds",
+        "unit": "s",
+        "max": 120
+      }
+    ]
+  },
+  "actor": {
+    "type": "agent",
+    "id": "claude-code-agent",
+    "display_name": "Claude Code",
+    "runtime": {
+      "name": "claude-code",
+      "version": "fixture"
+    },
+    "model": {
+      "provider": "anthropic",
+      "name": "fixture-model"
+    }
+  },
+  "authority": {
+    "mode": "explicit",
+    "status": "granted",
+    "scope": {
+      "actions": [
+        "edit_deployment_config"
+      ],
+      "resources": [
+        {
+          "system": "git",
+          "type": "file",
+          "id": "infra/example.yaml"
+        }
+      ]
+    },
+    "approvals": [
+      {
+        "status": "granted",
+        "approver": {
+          "type": "human",
+          "id": "release-owner",
+          "display_name": "Release owner"
+        },
+        "scope": "Edit infra/example.yaml and run the configuration check.",
+        "occurred_at": "2026-07-19T16:01:00Z",
+        "ref": {
+          "system": "claude-code",
+          "type": "approval",
+          "id": "approval-example-17"
+        }
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "edit-config",
+      "type": "file.edit",
+      "summary": "Updated the approved deployment configuration.",
+      "status": "completed",
+      "system": "git",
+      "target_refs": [
+        {
+          "system": "git",
+          "type": "file",
+          "id": "infra/example.yaml"
+        }
+      ],
+      "started_at": "2026-07-19T16:02:00Z",
+      "completed_at": "2026-07-19T16:03:00Z"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "deployment-diff",
+      "kind": "source_diff",
+      "name": "Approved deployment configuration diff",
+      "role": "output",
+      "ref": {
+        "system": "git",
+        "type": "diff",
+        "id": "diff:infra/example.yaml"
+      },
+      "media_type": "text/x-diff",
+      "created_at": "2026-07-19T16:03:00Z"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "approval-evidence",
+      "kind": "approval",
+      "summary": "The release owner approved the bounded edit.",
+      "ref": {
+        "system": "claude-code",
+        "type": "approval",
+        "id": "approval-example-17"
+      },
+      "observed_at": "2026-07-19T16:01:00Z"
+    },
+    {
+      "id": "configuration-test",
+      "kind": "test_result",
+      "summary": "The deployment configuration check passed.",
+      "ref": {
+        "system": "ci",
+        "type": "check",
+        "id": "config-check-882"
+      },
+      "observed_at": "2026-07-19T16:04:00Z",
+      "excerpt": "configuration valid"
+    }
+  ],
+  "outcome": {
+    "status": "succeeded",
+    "summary": "The approved configuration change passed its deterministic check.",
+    "acceptance": {
+      "status": "accepted",
+      "actor": {
+        "type": "human",
+        "id": "release-owner"
+      },
+      "occurred_at": "2026-07-19T16:05:00Z",
+      "evidence_ids": [
+        "approval-evidence",
+        "configuration-test"
+      ]
+    },
+    "criteria_results": [
+      {
+        "criterion_id": "c1",
+        "status": "met",
+        "evidence_ids": [
+          "configuration-test"
+        ],
+        "confidence": 0.9
+      },
+      {
+        "criterion_id": "c2",
+        "status": "met",
+        "evidence_ids": [
+          "approval-evidence"
+        ],
+        "confidence": 1
+      },
+      {
+        "criterion_id": "c3",
+        "status": "unknown",
+        "evidence_ids": [],
+        "confidence": 0.3
+      }
+    ],
+    "expected_results": [
+      {
+        "expected_id": "e1",
+        "status": "unknown",
+        "evidence_ids": []
+      }
+    ]
+  },
+  "verification": {
+    "status": "passed",
+    "method": "Configuration parser check.",
+    "verifier": {
+      "type": "service",
+      "id": "configuration-checker"
+    },
+    "checks": [
+      {
+        "id": "parse-config",
+        "name": "Parse deployment configuration",
+        "status": "passed",
+        "evidence_ids": [
+          "configuration-test"
+        ],
+        "criterion_ids": [
+          "c1"
+        ]
+      }
+    ],
+    "evidence_ids": [
+      "configuration-test"
+    ],
+    "verified_at": "2026-07-19T16:04:00Z"
+  },
+  "cost": {
+    "currency": "USD",
+    "total": 0,
+    "human_minutes": 1,
+    "estimated": true
+  },
+  "lineage": {
+    "run_ref": {
+      "system": "claude-code",
+      "type": "session",
+      "id": "example-session-17"
+    },
+    "parent_receipt_refs": [
+      {
+        "system": "agent-work-receipt",
+        "type": "receipt",
+        "id": "prior/example-16"
+      }
+    ],
+    "references": [
+      {
+        "relationship": "changes",
+        "ref": {
+          "system": "git",
+          "type": "file",
+          "id": "infra/example.yaml"
+        }
+      },
+      {
+        "relationship": "continues",
+        "ref": {
+          "system": "orgx-trail",
+          "type": "agent_work_receipt",
+          "id": "example-trail-v02-0"
+        },
+        "confidence": 0.85
+      }
+    ],
+    "workstream_ref": {
+      "system": "orgx-trail",
+      "type": "workstream",
+      "id": "ws_3b718af57f4b"
+    }
+  },
+  "human_interventions": [
+    {
+      "id": "human-approval",
+      "kind": "approval",
+      "actor": {
+        "type": "human",
+        "id": "release-owner"
+      },
+      "summary": "Approved the bounded deployment configuration edit.",
+      "occurred_at": "2026-07-19T16:01:00Z",
+      "duration_minutes": 1,
+      "evidence_ids": [
+        "approval-evidence"
+      ]
+    }
+  ],
+  "timestamps": {
+    "started_at": "2026-07-19T16:00:00Z",
+    "completed_at": "2026-07-19T16:05:00Z",
+    "issued_at": "2026-07-19T16:05:01Z"
+  },
+  "provenance": [
+    {
+      "path": "/intent/criteria/0",
+      "basis": "inferred",
+      "confidence": 0.7,
+      "method": "trail-rules/1.9"
+    },
+    {
+      "path": "/outcome/status",
+      "basis": "inferred",
+      "confidence": 0.8,
+      "method": "trail-rules/1.9"
+    },
+    {
+      "path": "/outcome/criteria_results/1",
+      "basis": "observed",
+      "confidence": 1
+    }
+  ],
+  "trajectory": [
+    {
+      "id": "t1",
+      "kind": "change_of_course",
+      "summary": "The first edit broke parsing; reverted and applied the change to the staging block instead.",
+      "trigger": "error",
+      "action_ids": [
+        "edit-config"
+      ],
+      "evidence_ids": [
+        "configuration-test"
+      ],
+      "confidence": 0.7
+    }
+  ]
+}
