@@ -1,7 +1,7 @@
 {
   "name": "@useorgx/agent-work-receipt",
-  "version": "0.1.1",
-  "description": "Account-free Agent Work Receipt v0.1 schema, types, and deterministic validator.",
+  "version": "0.2.0",
+  "description": "Account-free Agent Work Receipt schema (v0.1, v0.2), types, and deterministic validator.",
   "license": "Apache-2.0",
   "author": "OrgX <team@useorgx.com>",
   "type": "module",
@@ -38,7 +38,9 @@
     "prepack": "npm run build",
     "prepublishOnly": "npm run typecheck && npm test && npm run build",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "test": "vitest run --config vitest.config.ts tests/conformance.spec.ts tests/integrity.spec.ts"
+    "test": "vitest run --config vitest.config.ts tests/conformance.spec.ts tests/integrity.spec.ts tests/v02.spec.ts",
+    "build:schema": "node scripts/build-v0.2-schema.mjs",
+    "check:schema": "node scripts/build-v0.2-schema.mjs && git diff --exit-code -- schema/"
   },
   "repository": {
     "type": "git",

@@ -1,4 +1,4 @@
-export { agentWorkReceiptSchema } from './schema.ts';
+export { agentWorkReceiptSchema, agentWorkReceiptSchemaV02 } from './schema.ts';
 export * from './integrity.ts';
 export * from './rawJson.ts';
 export {

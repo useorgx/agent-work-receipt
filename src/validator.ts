@@ -1,7 +1,7 @@
 import { Ajv2020, type ErrorObject } from 'ajv/dist/2020.js';
 import addFormatsModule from 'ajv-formats';
 
-import { agentWorkReceiptSchema } from './schema.ts';
+import { agentWorkReceiptSchema, agentWorkReceiptSchemaV02 } from './schema.ts';
 import type {
   AgentWorkReceipt,
   AgentWorkReceiptValidationIssue,
@@ -32,7 +32,11 @@ addFormatsModule.default(ajv, {
   keywords: false,
 });
 
-const validateSchema = ajv.compile<AgentWorkReceipt>(agentWorkReceiptSchema);
+const validateSchemaV01 = ajv.compile<AgentWorkReceipt>(agentWorkReceiptSchema);
+const validateSchemaV02 = ajv.compile<AgentWorkReceipt>(agentWorkReceiptSchemaV02);
+/** v0.2 receipts use the v0.2 schema; everything else (including unknown versions) is judged as v0.1. */
+const schemaFor = (value: unknown) =>
+  value && typeof value === 'object' && (value as { schema_version?: unknown }).schema_version === 'agent-work-receipt/v0.2' ? validateSchemaV02 : validateSchemaV01;
 
 function escapeJsonPointerSegment(segment: string | number): string {
   return String(segment).replace(/~/g, '~0').replace(/\//g, '~1');
@@ -68,7 +72,7 @@ function schemaIssueMessage(error: ErrorObject): string {
     case 'required':
       return 'Required value is missing.';
     case 'additionalProperties':
-      return 'Property is not allowed by Agent Work Receipt v0.1.';
+      return 'Property is not allowed by this Agent Work Receipt version.';
     case 'type':
       return `Value must be of type ${String(
         (error.params as { type?: unknown }).type ?? 'required by the schema'
@@ -501,7 +505,79 @@ function validateSemantics(
     );
   }
 
+  if (receipt.schema_version === 'agent-work-receipt/v0.2') validateV02Semantics(receipt, knownEvidenceIds, issues);
+
   return issues;
+}
+
+function resolvesPointer(root: unknown, pointer: string): boolean {
+  if (pointer === '') return true;
+  let current: unknown = root;
+  for (const raw of pointer.slice(1).split('/')) {
+    const key = raw.replace(/~1/g, '/').replace(/~0/g, '~');
+    if (Array.isArray(current)) {
+      if (!/^(0|[1-9]\d*)$/.test(key) || Number(key) >= current.length) return false;
+      current = current[Number(key)];
+    } else if (current && typeof current === 'object' && Object.prototype.hasOwnProperty.call(current, key)) {
+      current = (current as Record<string, unknown>)[key];
+    } else return false;
+  }
+  return true;
+}
+
+/** v0.2 cross-references: results point at declared criteria and expectations; ids and pointers resolve. */
+function validateV02Semantics(receipt: AgentWorkReceipt, knownEvidenceIds: ReadonlySet<string>, issues: ValidationIssueSink): void {
+  const criteria = receipt.intent.criteria ?? [];
+  addDuplicateIdIssues(criteria, '/intent/criteria', issues);
+  const criterionIds = new Set(criteria.map(({ id }) => id));
+  const expected = receipt.intent.expected_outcomes ?? [];
+  addDuplicateIdIssues(expected, '/intent/expected_outcomes', issues);
+  const expectedIds = new Set(expected.map(({ id }) => id));
+  expected.forEach((e, index) => {
+    if (e.min !== undefined && e.max !== undefined && e.min > e.max) issues.push(semanticIssue(`/intent/expected_outcomes/${index}/max`, 'expected_range_order', 'Expected outcome max must not be below min.'));
+  });
+
+  const seenResults = new Map<string, number>();
+  receipt.outcome.criteria_results?.forEach((result, index) => {
+    const path = `/outcome/criteria_results/${index}`;
+    if (!criterionIds.has(result.criterion_id)) issues.push(semanticIssue(`${path}/criterion_id`, 'unknown_criterion_id', 'Result names a criterion that is not in /intent/criteria.'));
+    const first = seenResults.get(result.criterion_id);
+    if (first !== undefined) issues.push(semanticIssue(`${path}/criterion_id`, 'duplicate_criterion_result', `Criterion already has a result at /outcome/criteria_results/${first}.`));
+    else seenResults.set(result.criterion_id, index);
+    if ((result.status === 'met' || result.status === 'unmet') && result.evidence_ids.length === 0 && !result.decided_by) {
+      issues.push(semanticIssue(`${path}/evidence_ids`, 'criterion_result_without_basis', 'A met or unmet result needs evidence or a deciding actor.'));
+    }
+    addEvidenceReferenceIssues(result.evidence_ids, `${path}/evidence_ids`, knownEvidenceIds, issues);
+  });
+  receipt.outcome.expected_results?.forEach((result, index) => {
+    const path = `/outcome/expected_results/${index}`;
+    if (!expectedIds.has(result.expected_id)) issues.push(semanticIssue(`${path}/expected_id`, 'unknown_expected_id', 'Result names an expected outcome that is not in /intent/expected_outcomes.'));
+    addEvidenceReferenceIssues(result.evidence_ids, `${path}/evidence_ids`, knownEvidenceIds, issues);
+  });
+  receipt.verification.checks.forEach((check, index) => {
+    check.criterion_ids?.forEach((id, j) => {
+      if (!criterionIds.has(id)) issues.push(semanticIssue(`/verification/checks/${index}/criterion_ids/${j}`, 'unknown_criterion_id', 'Check names a criterion that is not in /intent/criteria.'));
+    });
+  });
+  if (
+    receipt.outcome.status === 'succeeded' &&
+    receipt.outcome.criteria_results?.some((r) => r.status === 'unmet' && criteria.find((c) => c.id === r.criterion_id)?.required !== false)
+  ) {
+    issues.push(semanticIssue('/outcome/status', 'succeeded_with_unmet_criterion', 'A succeeded outcome cannot have an unmet required criterion; use partially_succeeded.'));
+  }
+
+  receipt.provenance?.forEach((entry, index) => {
+    if (!resolvesPointer(receipt, entry.path)) issues.push(semanticIssue(`/provenance/${index}/path`, 'unresolved_provenance_path', 'Provenance path does not point at a value in this receipt.'));
+  });
+
+  const actionIds = new Set(receipt.actions.map(({ id }) => id));
+  addDuplicateIdIssues(receipt.trajectory ?? [], '/trajectory', issues);
+  receipt.trajectory?.forEach((step, index) => {
+    addEvidenceReferenceIssues(step.evidence_ids, `/trajectory/${index}/evidence_ids`, knownEvidenceIds, issues);
+    step.action_ids?.forEach((id, j) => {
+      if (!actionIds.has(id)) issues.push(semanticIssue(`/trajectory/${index}/action_ids/${j}`, 'unknown_action_id', 'Referenced action id is not present in /actions.'));
+    });
+  });
 }
 
 export function validateAgentWorkReceipt(
@@ -514,12 +590,13 @@ export function validateAgentWorkReceipt(
     structureIssue = {
       path: '',
       code: 'input.validation_failed',
-      message: 'Receipt could not be safely evaluated by the v0.1 validator.',
+      message: 'Receipt could not be safely evaluated by the validator.',
     };
   }
   if (structureIssue) return validationFailure([structureIssue]);
 
   let schemaValid: boolean;
+  const validateSchema = schemaFor(value);
   try {
     schemaValid = validateSchema(value);
   } catch {
@@ -527,7 +604,7 @@ export function validateAgentWorkReceipt(
       {
         path: '',
         code: 'input.validation_failed',
-        message: 'Receipt could not be safely evaluated by the v0.1 validator.',
+        message: 'Receipt could not be safely evaluated by the validator.',
       },
     ]);
   }
@@ -572,7 +649,7 @@ export class AgentWorkReceiptValidationError extends TypeError {
     const issuesTruncated =
       options?.issues_truncated ?? issueCount > deterministic.length;
     super(
-      `Invalid Agent Work Receipt v0.1:\n${formatAgentWorkReceiptIssues(
+      `Invalid Agent Work Receipt:\n${formatAgentWorkReceiptIssues(
         deterministic
       )}${
         issuesTruncated
