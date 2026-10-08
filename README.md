@@ -249,6 +249,15 @@ hosted verification or human review. See the
 [public OpenAPI contract](https://useorgx.com/api/v1/openapi.yaml) for complete
 request, response, and authentication details.
 
+## Review extension
+
+`extensions['org.orgx.review/v1']` carries what a reviewer needs to approve or
+send back work: criteria with their quoted source and a `source_check`, four
+proof lenses per criterion, episodes with stable ids tied to commits, and which
+layers of the record exist. See `docs/review-extension.md`. Validate it with
+`validateOrgxReviewExtension(receipt)`; it never changes the result of
+`validateAgentWorkReceipt`.
+
 ## Versioning
 
 `v0.1` and `v0.2` are interoperability previews; the validator dispatches on `schema_version`. Producers must emit the exact
