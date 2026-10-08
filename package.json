@@ -1,6 +1,6 @@
 {
   "name": "@useorgx/agent-work-receipt",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Account-free Agent Work Receipt schema (v0.1, v0.2), types, and deterministic validator.",
   "license": "Apache-2.0",
   "author": "OrgX <team@useorgx.com>",
@@ -30,6 +30,8 @@
       "import": "./dist/src/index.js"
     },
     "./schema": "./schema/agent-work-receipt.v0.1.schema.json",
+    "./schema/v0.2": "./schema/agent-work-receipt.v0.2.schema.json",
+    "./schema/extensions/org.orgx.review/v1": "./schema/extensions/org.orgx.review.v1.schema.json",
     "./fixtures/*": "./fixtures/*",
     "./conformance/*": "./conformance/*"
   },
@@ -38,7 +40,7 @@
     "prepack": "npm run build",
     "prepublishOnly": "npm run typecheck && npm test && npm run build",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "test": "vitest run --config vitest.config.ts tests/conformance.spec.ts tests/integrity.spec.ts tests/v02.spec.ts",
+    "test": "vitest run --config vitest.config.ts tests/conformance.spec.ts tests/integrity.spec.ts tests/v02.spec.ts tests/review.spec.ts",
     "build:schema": "node scripts/build-v0.2-schema.mjs",
     "check:schema": "node scripts/build-v0.2-schema.mjs && git diff --exit-code -- schema/"
   },

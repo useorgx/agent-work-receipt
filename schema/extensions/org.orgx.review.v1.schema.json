@@ -1,0 +1,618 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://useorgx.com/schemas/agent-work-receipt/extensions/org.orgx.review/v1/schema.json",
+  "title": "Agent Work Receipt review extension (org.orgx.review/v1)",
+  "description": "Additive, vendor-namespaced payload stored at receipt.extensions['org.orgx.review/v1']. It carries what a reviewer needs to approve or reject work and that the v0.2 core cannot express: where each criterion came from (with the quoted line), whether that source still agrees, the four proof lenses per criterion, the episodes of the work tied to commits, and which layers of the record are present. Nothing here changes the meaning of the core receipt; a host that does not know this namespace ignores it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "sources",
+    "criteria",
+    "episodes",
+    "layers"
+  ],
+  "properties": {
+    "version": {
+      "const": "org.orgx.review/v1"
+    },
+    "sources": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    },
+    "criteria": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "$ref": "#/$defs/criterion_review"
+      }
+    },
+    "episodes": {
+      "type": "array",
+      "maxItems": 5000,
+      "items": {
+        "$ref": "#/$defs/episode"
+      }
+    },
+    "layers": {
+      "$ref": "#/$defs/layers"
+    },
+    "inputs": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "$ref": "#/$defs/input"
+      }
+    },
+    "conversation": {
+      "type": "array",
+      "maxItems": 5000,
+      "items": {
+        "$ref": "#/$defs/utterance"
+      }
+    },
+    "readings": {
+      "description": "Independent readings of the same run, for example the rule-based status next to the criterion-judged status.",
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/$defs/reading"
+      }
+    },
+    "work": {
+      "description": "Plain name of the work being reviewed, for headers and send-back text (for example 'pypa/hatch #2216 at d0dc39b4').",
+      "$ref": "#/$defs/short_string"
+    },
+    "metadata": {
+      "$ref": "#/$defs/json_object"
+    },
+    "domain": {
+      "description": "The kind of work, which sets the plain words a reviewer sees for the four lenses (for code, measured means tests ran; for content, it means the piece was measured in market). Omitted means generic.",
+      "enum": [
+        "code",
+        "design",
+        "content",
+        "ops",
+        "data",
+        "research",
+        "generic"
+      ]
+    },
+    "subject": {
+      "description": "What the receipt is about, in plain words, for cross-domain lists: a pull request, a design file, a brief, a deployment.",
+      "$ref": "#/$defs/subject"
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "\\S"
+    },
+    "short_string": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "\\S"
+    },
+    "long_string": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 20000,
+      "pattern": "\\S"
+    },
+    "json_value": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "string",
+          "maxLength": 20000
+        },
+        {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/json_value"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/json_value"
+          }
+        }
+      ]
+    },
+    "json_object": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/json_value"
+      }
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "source_type": {
+      "description": "Where a criterion can come from. 'chat' is the person's own ask; 'doc', 'spec', 'ticket', 'design' and 'api' are written sources; 'pr' is a pull request description or diff; 'artifact' is another OrgX artifact such as a frozen criteria plan; 'skill' is pinned guidance.",
+      "enum": [
+        "chat",
+        "doc",
+        "spec",
+        "ticket",
+        "design",
+        "api",
+        "pr",
+        "artifact",
+        "skill",
+        "other"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "title"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "$ref": "#/$defs/source_type"
+        },
+        "title": {
+          "$ref": "#/$defs/short_string"
+        },
+        "where": {
+          "description": "Human-readable location: a section, a message range, a file name.",
+          "$ref": "#/$defs/short_string"
+        },
+        "href": {
+          "type": "string",
+          "format": "uri-reference",
+          "maxLength": 2048
+        },
+        "note": {
+          "$ref": "#/$defs/long_string"
+        },
+        "digest": {
+          "$ref": "#/$defs/short_string"
+        }
+      }
+    },
+    "source_ref": {
+      "description": "One place a criterion was read from.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id"
+      ],
+      "properties": {
+        "source_id": {
+          "$ref": "#/$defs/id"
+        },
+        "at": {
+          "description": "Location inside the source: '§4.3', 'message 2', 'AC 8', 'Description'.",
+          "$ref": "#/$defs/short_string"
+        },
+        "quote": {
+          "description": "The source's own words that the criterion was read from.",
+          "$ref": "#/$defs/long_string"
+        },
+        "href": {
+          "type": "string",
+          "format": "uri-reference",
+          "maxLength": 2048
+        }
+      }
+    },
+    "source_check": {
+      "description": "Whether the criterion still matches its source. 'wrong' means the source says something else (the quote shows what); 'unchecked' means nobody compared them.",
+      "enum": [
+        "unchecked",
+        "confirmed",
+        "wrong"
+      ]
+    },
+    "lens_status": {
+      "description": "pass: proven. partial: partly proven. fail: proven not to hold. none: no proof of this kind. na: this kind of proof does not apply.",
+      "enum": [
+        "pass",
+        "partial",
+        "fail",
+        "none",
+        "na"
+      ]
+    },
+    "lens": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/lens_status"
+        },
+        "note": {
+          "$ref": "#/$defs/long_string"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "href": {
+          "type": "string",
+          "format": "uri-reference",
+          "maxLength": 2048
+        }
+      }
+    },
+    "lenses": {
+      "description": "Four independent kinds of proof. judged: reviewed against the codebase, skills and good practice. measured: tests or commands that ran. observed: attached output, screenshot or log. outcome: a signal after release (logs, analytics).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "judged",
+        "measured",
+        "observed",
+        "outcome"
+      ],
+      "properties": {
+        "judged": {
+          "$ref": "#/$defs/lens"
+        },
+        "measured": {
+          "$ref": "#/$defs/lens"
+        },
+        "observed": {
+          "$ref": "#/$defs/lens"
+        },
+        "outcome": {
+          "$ref": "#/$defs/lens"
+        }
+      }
+    },
+    "criterion_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "criterion_id",
+        "source_refs",
+        "source_check",
+        "lenses"
+      ],
+      "properties": {
+        "criterion_id": {
+          "description": "Must name an entry in intent.criteria.",
+          "$ref": "#/$defs/id"
+        },
+        "group": {
+          "description": "Feature or area the criterion belongs to, for grouping in a long list.",
+          "$ref": "#/$defs/short_string"
+        },
+        "short": {
+          "description": "A one-line name when intent.criteria[].text is long.",
+          "$ref": "#/$defs/short_string"
+        },
+        "source_refs": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/source_ref"
+          }
+        },
+        "source_check": {
+          "$ref": "#/$defs/source_check"
+        },
+        "source_note": {
+          "$ref": "#/$defs/long_string"
+        },
+        "lenses": {
+          "$ref": "#/$defs/lenses"
+        },
+        "episode_ids": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        }
+      }
+    },
+    "episode_kind": {
+      "description": "ask: the person asked for something. steer: the person changed direction. change: the agent chose a different path. retry: something failed and ran again. experiment: options were compared and one kept. check: tests or commands ran. commit: code was saved to the branch.",
+      "enum": [
+        "ask",
+        "steer",
+        "change",
+        "retry",
+        "experiment",
+        "check",
+        "commit"
+      ]
+    },
+    "commit_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha"
+      ],
+      "properties": {
+        "sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{7,64}$"
+        },
+        "message": {
+          "$ref": "#/$defs/short_string"
+        },
+        "href": {
+          "type": "string",
+          "format": "uri-reference",
+          "maxLength": 2048
+        }
+      }
+    },
+    "episode": {
+      "description": "One moment of the work, stable across re-extractions (id is content-derived, never a positional 'T3').",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "at",
+        "title"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "$ref": "#/$defs/episode_kind"
+        },
+        "at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "title": {
+          "description": "Plain words, what happened, at most a sentence.",
+          "$ref": "#/$defs/short_string"
+        },
+        "why": {
+          "description": "The reason or trigger, in plain words.",
+          "$ref": "#/$defs/long_string"
+        },
+        "criterion_ids": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "commit": {
+          "$ref": "#/$defs/commit_ref"
+        },
+        "action_ids": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "evidence_ids": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "trajectory_id": {
+          "description": "The trajectory step this episode was derived from, if any.",
+          "$ref": "#/$defs/id"
+        },
+        "thread": {
+          "description": "Trail thread label this episode sits on (for example 'T2'). Positional; for display only.",
+          "$ref": "#/$defs/short_string"
+        },
+        "confidence": {
+          "$ref": "#/$defs/confidence"
+        }
+      }
+    },
+    "layer_status": {
+      "enum": [
+        "full",
+        "part",
+        "missing"
+      ]
+    },
+    "layer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/layer_status"
+        },
+        "note": {
+          "$ref": "#/$defs/short_string"
+        },
+        "how": {
+          "description": "What would fill this layer, for the empty state (a command, a connection).",
+          "$ref": "#/$defs/long_string"
+        }
+      }
+    },
+    "layers": {
+      "description": "Which layers of the record exist. Context layers: inputs (what was asked), sources (where criteria came from), transcript (the conversation). Proof layers mirror the lenses.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inputs",
+        "sources",
+        "transcript",
+        "judged",
+        "measured",
+        "observed",
+        "outcome"
+      ],
+      "properties": {
+        "inputs": {
+          "$ref": "#/$defs/layer"
+        },
+        "sources": {
+          "$ref": "#/$defs/layer"
+        },
+        "transcript": {
+          "$ref": "#/$defs/layer"
+        },
+        "judged": {
+          "$ref": "#/$defs/layer"
+        },
+        "measured": {
+          "$ref": "#/$defs/layer"
+        },
+        "observed": {
+          "$ref": "#/$defs/layer"
+        },
+        "outcome": {
+          "$ref": "#/$defs/layer"
+        }
+      }
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "who",
+        "type",
+        "text"
+      ],
+      "properties": {
+        "who": {
+          "$ref": "#/$defs/short_string"
+        },
+        "type": {
+          "$ref": "#/$defs/source_type"
+        },
+        "text": {
+          "$ref": "#/$defs/long_string"
+        },
+        "at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "quality": {
+          "description": "How complete the input was as a statement of done: full means criteria could be read straight from it.",
+          "$ref": "#/$defs/layer_status"
+        }
+      }
+    },
+    "utterance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "who",
+        "text"
+      ],
+      "properties": {
+        "who": {
+          "enum": [
+            "human",
+            "agent",
+            "system"
+          ]
+        },
+        "text": {
+          "$ref": "#/$defs/long_string"
+        },
+        "at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "episode_id": {
+          "$ref": "#/$defs/id"
+        }
+      }
+    },
+    "reading": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "$ref": "#/$defs/short_string"
+        },
+        "value": {
+          "$ref": "#/$defs/short_string"
+        }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "title"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "pull_request",
+            "commit",
+            "design",
+            "document",
+            "brief",
+            "campaign",
+            "dataset",
+            "model",
+            "deployment",
+            "incident",
+            "ticket",
+            "artifact",
+            "other"
+          ]
+        },
+        "title": {
+          "$ref": "#/$defs/short_string"
+        },
+        "href": {
+          "type": "string",
+          "format": "uri-reference",
+          "maxLength": 2048
+        },
+        "system": {
+          "$ref": "#/$defs/short_string"
+        },
+        "id": {
+          "$ref": "#/$defs/short_string"
+        }
+      }
+    }
+  }
+}

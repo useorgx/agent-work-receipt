@@ -1,0 +1,3610 @@
+{
+  "schema_version": "agent-work-receipt/v0.2",
+  "receipt_id": "orgx-skill-hatch-2216-2026-10-07-v1",
+  "intent": {
+    "summary": "New OrgX-skill-guided verification of Hatch #2216 final PR head.",
+    "objective": "Verify a developer can lock all four dependency sources, distinguish unchanged/stale inputs, and restore executable consumer imports, with prospective measured evidence.",
+    "criteria": [
+      {
+        "id": "g1",
+        "text": "Generate pylock.combo.toml; parse lock-version 1.0; exactly four pinned package versions from project, environment, extra and dependency group; SHA-256 hashes on every available wheel/sdist entry. Bounded structure, not PEP 751 certification.",
+        "kind": "workflow",
+        "source": "agent_proposed",
+        "required": true
+      },
+      {
+        "id": "g2",
+        "text": "Unchanged dependency inputs: hatch env lock combo --check exits 0. An unrelated resolver error must remain failure.",
+        "kind": "workflow",
+        "source": "agent_proposed",
+        "required": true
+      },
+      {
+        "id": "g3",
+        "text": "Change available six input from 1.17.0 to 1.16.0: --check exits exactly 1 and reports Lockfile is not up to date; restore exact original inputs. Exit 2 is an execution error, not proof of semantic stale detection.",
+        "kind": "workflow",
+        "source": "agent_proposed",
+        "required": true
+      },
+      {
+        "id": "g4",
+        "text": "Remove all four consumer packages, observe import failure, run hatch dep sync and import all four exact pinned versions successfully in the same consumer environment.",
+        "kind": "workflow",
+        "source": "agent_proposed",
+        "required": true
+      },
+      {
+        "id": "g5",
+        "text": "Existing focused lock-command tests report 28 passing tests, with 7 network tests deselected; report mocked tests separately from consumer workflow evidence. Parent snapshot has no new lock test files, which is availability rather than a quality regression.",
+        "kind": "tests",
+        "source": "agent_proposed",
+        "required": true
+      }
+    ],
+    "acceptance_criteria": [
+      "Generate pylock.combo.toml; parse lock-version 1.0; exactly four pinned package versions from project, environment, extra and dependency group; SHA-256 hashes on every available wheel/sdist entry. Bounded structure, not PEP 751 certification.",
+      "Unchanged dependency inputs: hatch env lock combo --check exits 0. An unrelated resolver error must remain failure.",
+      "Change available six input from 1.17.0 to 1.16.0: --check exits exactly 1 and reports Lockfile is not up to date; restore exact original inputs. Exit 2 is an execution error, not proof of semantic stale detection.",
+      "Remove all four consumer packages, observe import failure, run hatch dep sync and import all four exact pinned versions successfully in the same consumer environment.",
+      "Existing focused lock-command tests report 28 passing tests, with 7 network tests deselected; report mocked tests separately from consumer workflow evidence. Parent snapshot has no new lock test files, which is availability rather than a quality regression."
+    ],
+    "request_ref": {
+      "system": "local-declared-task",
+      "type": "verification_plan",
+      "id": "orgx-skill-hatch-2216-2026-10-07-v1"
+    },
+    "expected_outcomes": [
+      {
+        "id": "four-pinned-packages",
+        "description": "All four source pins are locked and importable after sync",
+        "target": 4,
+        "unit": "packages"
+      },
+      {
+        "id": "unchanged-exit",
+        "description": "Unchanged-input check exit status",
+        "target": 0,
+        "unit": "exit_code"
+      },
+      {
+        "id": "stale-exit",
+        "description": "Semantic stale-input exit status with matching message",
+        "target": 1,
+        "unit": "exit_code"
+      }
+    ],
+    "constraints": [
+      "Authorized local verification and artifact export only. No production mutations, upstream writes, publishing, signing, persistent access changes or new spending commitments."
+    ],
+    "metadata": {
+      "generation": "this agent following pinned OrgX skill guidance",
+      "skill_provenance_ref": "skill-provenance.json",
+      "plan_declared_at": "2026-10-07T23:27:02.779Z",
+      "frozen_before_checks": true,
+      "not_independent_feature_implementation": true
+    }
+  },
+  "actor": {
+    "type": "agent",
+    "id": "current-codex-agent",
+    "display_name": "Codex agent applying pinned OrgX guidance",
+    "runtime": {
+      "name": "Codex conversation plus prospective local subprocess recorder",
+      "version": "record.py v1"
+    },
+    "metadata": {
+      "exact_model_id": "unmeasured",
+      "criteria_generator": "this agent following skills; not OrgX scaffold or autonomous enforcement"
+    }
+  },
+  "authority": {
+    "mode": "explicit",
+    "status": "granted",
+    "scope": {
+      "actions": [
+        "read_public_sources",
+        "run_local_verification",
+        "emit_public_safe_evidence"
+      ],
+      "resources": [
+        {
+          "system": "local-workspace",
+          "type": "scratch_run",
+          "id": "orgx-skill-hatch-2216-2026-10-07-v1"
+        }
+      ]
+    },
+    "constraints": [
+      "Authorized local verification and artifact export only. No production mutations, upstream writes, publishing, signing, persistent access changes or new spending commitments."
+    ]
+  },
+  "actions": [
+    {
+      "id": "checkout-before",
+      "type": "command.run",
+      "summary": "checkout before",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:02.781Z",
+      "completed_at": "2026-10-07T23:27:02.850Z",
+      "metadata": {
+        "argv": [
+          "git",
+          "-C",
+          "<PREVIOUS_SETUP>/hatch",
+          "worktree",
+          "add",
+          "--detach",
+          "<RUN>/hatch-before",
+          "34dba22e5e3c7b7468b67f53f93b7340e54609b8"
+        ],
+        "exit_code": 0,
+        "role": "setup",
+        "criterion_ids": [],
+        "evidence_file": "evidence/checkout-before.json"
+      }
+    },
+    {
+      "id": "checkout-after",
+      "type": "command.run",
+      "summary": "checkout after",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:02.851Z",
+      "completed_at": "2026-10-07T23:27:02.911Z",
+      "metadata": {
+        "argv": [
+          "git",
+          "-C",
+          "<PREVIOUS_SETUP>/hatch",
+          "worktree",
+          "add",
+          "--detach",
+          "<RUN>/hatch-after",
+          "d0dc39b4f89032caf52dbdac02edd8bb26521288"
+        ],
+        "exit_code": 0,
+        "role": "setup",
+        "criterion_ids": [],
+        "evidence_file": "evidence/checkout-after.json"
+      }
+    },
+    {
+      "id": "source-subjects",
+      "type": "command.run",
+      "summary": "source subjects",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:44.642Z",
+      "completed_at": "2026-10-07T23:27:44.645Z",
+      "metadata": {
+        "argv": [
+          "git",
+          "-C",
+          "<PREVIOUS_SETUP>/hatch",
+          "show",
+          "-s",
+          "--format=%H %T %P %s",
+          "d0dc39b4f89032caf52dbdac02edd8bb26521288",
+          "89fb3cb5c5d314b76e47f24dbb2c9b5e5bd4cae1",
+          "34dba22e5e3c7b7468b67f53f93b7340e54609b8"
+        ],
+        "exit_code": 0,
+        "role": "provenance",
+        "criterion_ids": [],
+        "evidence_file": "evidence/source-subjects.json"
+      }
+    },
+    {
+      "id": "head-merge-tree-equivalence",
+      "type": "command.run",
+      "summary": "head merge tree equivalence",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:44.645Z",
+      "completed_at": "2026-10-07T23:27:44.648Z",
+      "metadata": {
+        "argv": [
+          "git",
+          "-C",
+          "<PREVIOUS_SETUP>/hatch",
+          "diff",
+          "--exit-code",
+          "d0dc39b4f89032caf52dbdac02edd8bb26521288^{tree}",
+          "89fb3cb5c5d314b76e47f24dbb2c9b5e5bd4cae1^{tree}"
+        ],
+        "exit_code": 0,
+        "role": "provenance",
+        "criterion_ids": [],
+        "evidence_file": "evidence/head-merge-tree-equivalence.json"
+      }
+    },
+    {
+      "id": "runtime-python",
+      "type": "command.run",
+      "summary": "runtime python",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:44.648Z",
+      "completed_at": "2026-10-07T23:27:44.650Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "--version"
+        ],
+        "exit_code": 0,
+        "role": "provenance",
+        "criterion_ids": [],
+        "evidence_file": "evidence/runtime-python.json"
+      }
+    },
+    {
+      "id": "runtime-uv",
+      "type": "command.run",
+      "summary": "runtime uv",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:44.650Z",
+      "completed_at": "2026-10-07T23:27:44.655Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/uv",
+          "--version"
+        ],
+        "exit_code": 0,
+        "role": "provenance",
+        "criterion_ids": [],
+        "evidence_file": "evidence/runtime-uv.json"
+      }
+    },
+    {
+      "id": "runtime-freeze",
+      "type": "command.run",
+      "summary": "runtime freeze",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:44.655Z",
+      "completed_at": "2026-10-07T23:27:44.864Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "pip",
+          "freeze",
+          "--all"
+        ],
+        "exit_code": 0,
+        "role": "provenance",
+        "criterion_ids": [],
+        "evidence_file": "evidence/runtime-freeze.json"
+      }
+    },
+    {
+      "id": "runtime-system",
+      "type": "command.run",
+      "summary": "runtime system",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:44.864Z",
+      "completed_at": "2026-10-07T23:27:44.866Z",
+      "metadata": {
+        "argv": [
+          "uname",
+          "-srm"
+        ],
+        "exit_code": 0,
+        "role": "provenance",
+        "criterion_ids": [],
+        "evidence_file": "evidence/runtime-system.json"
+      }
+    },
+    {
+      "id": "before-bootstrap-consumer",
+      "type": "command.run",
+      "summary": "before bootstrap consumer",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:44.869Z",
+      "completed_at": "2026-10-07T23:27:45.263Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "run",
+          "combo:python",
+          "-c",
+          "pass"
+        ],
+        "exit_code": 0,
+        "role": "workflow_setup",
+        "criterion_ids": [],
+        "evidence_file": "evidence/before-bootstrap-consumer.json"
+      }
+    },
+    {
+      "id": "before-baseline-g1-generate",
+      "type": "command.run",
+      "summary": "before baseline g1 generate",
+      "status": "failed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:45.331Z",
+      "completed_at": "2026-10-07T23:27:45.419Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo"
+        ],
+        "exit_code": 2,
+        "role": "workflow",
+        "criterion_ids": [
+          "g1"
+        ],
+        "evidence_file": "evidence/before-baseline-g1-generate.json"
+      }
+    },
+    {
+      "id": "before-baseline-g2-unchanged",
+      "type": "command.run",
+      "summary": "before baseline g2 unchanged",
+      "status": "failed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:45.459Z",
+      "completed_at": "2026-10-07T23:27:45.560Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo",
+          "--check"
+        ],
+        "exit_code": 2,
+        "role": "workflow",
+        "criterion_ids": [
+          "g2"
+        ],
+        "evidence_file": "evidence/before-baseline-g2-unchanged.json"
+      }
+    },
+    {
+      "id": "before-baseline-g3-stale",
+      "type": "command.run",
+      "summary": "before baseline g3 stale",
+      "status": "failed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:45.597Z",
+      "completed_at": "2026-10-07T23:27:45.707Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo",
+          "--check"
+        ],
+        "exit_code": 2,
+        "role": "workflow",
+        "criterion_ids": [
+          "g3"
+        ],
+        "evidence_file": "evidence/before-baseline-g3-stale.json"
+      }
+    },
+    {
+      "id": "before-baseline-g4-remove",
+      "type": "command.run",
+      "summary": "before baseline g4 remove",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:45.745Z",
+      "completed_at": "2026-10-07T23:27:45.753Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "<RUN>/hatch-data-before/env/virtual/orgx-skill-verification-consumer/V3SWuP5H/combo/bin/python",
+          "packaging",
+          "six",
+          "idna",
+          "certifi"
+        ],
+        "exit_code": 0,
+        "role": "workflow",
+        "criterion_ids": [
+          "g4"
+        ],
+        "evidence_file": "evidence/before-baseline-g4-remove.json"
+      }
+    },
+    {
+      "id": "before-baseline-g4-empty",
+      "type": "command.run",
+      "summary": "before baseline g4 empty",
+      "status": "failed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:45.754Z",
+      "completed_at": "2026-10-07T23:27:45.804Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/hatch-data-before/env/virtual/orgx-skill-verification-consumer/V3SWuP5H/combo/bin/python",
+          "<RUN>/project-before/workflow_imports.py"
+        ],
+        "exit_code": 1,
+        "role": "workflow",
+        "criterion_ids": [
+          "g4"
+        ],
+        "evidence_file": "evidence/before-baseline-g4-empty.json"
+      }
+    },
+    {
+      "id": "before-baseline-g4-sync",
+      "type": "command.run",
+      "summary": "before baseline g4 sync",
+      "status": "failed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:45.804Z",
+      "completed_at": "2026-10-07T23:27:45.888Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "dep",
+          "sync"
+        ],
+        "exit_code": 2,
+        "role": "workflow",
+        "criterion_ids": [
+          "g4"
+        ],
+        "evidence_file": "evidence/before-baseline-g4-sync.json"
+      }
+    },
+    {
+      "id": "before-baseline-g5-pytest",
+      "type": "command.run",
+      "summary": "before baseline g5 pytest",
+      "status": "failed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:45.926Z",
+      "completed_at": "2026-10-07T23:27:46.278Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "pytest",
+          "tests/cli/env/test_lock.py",
+          "tests/cli/dep/test_dep_lock.py",
+          "-m",
+          "not requires_internet",
+          "-q",
+          "-o",
+          "addopts="
+        ],
+        "exit_code": 4,
+        "role": "mocked_existing_tests",
+        "criterion_ids": [
+          "g5"
+        ],
+        "evidence_file": "evidence/before-baseline-g5-pytest.json"
+      }
+    },
+    {
+      "id": "orgx-native-before-baseline",
+      "type": "command.run",
+      "summary": "orgx native before baseline",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:45.264Z",
+      "completed_at": "2026-10-07T23:27:46.290Z",
+      "metadata": {
+        "argv": [
+          "node",
+          "<RUN>/native-check-runner.mjs",
+          "before",
+          "baseline"
+        ],
+        "exit_code": 0,
+        "role": "native_orgx_check_executor",
+        "criterion_ids": [],
+        "evidence_file": "evidence/orgx-native-before-baseline.json"
+      }
+    },
+    {
+      "id": "before-tracked-clean",
+      "type": "command.run",
+      "summary": "before tracked clean",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:46.291Z",
+      "completed_at": "2026-10-07T23:27:46.341Z",
+      "metadata": {
+        "argv": [
+          "git",
+          "status",
+          "--porcelain",
+          "--untracked-files=no"
+        ],
+        "exit_code": 0,
+        "role": "provenance",
+        "criterion_ids": [],
+        "evidence_file": "evidence/before-tracked-clean.json"
+      }
+    },
+    {
+      "id": "after-bootstrap-consumer",
+      "type": "command.run",
+      "summary": "after bootstrap consumer",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:46.345Z",
+      "completed_at": "2026-10-07T23:27:46.709Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "run",
+          "combo:python",
+          "-c",
+          "pass"
+        ],
+        "exit_code": 0,
+        "role": "workflow_setup",
+        "criterion_ids": [],
+        "evidence_file": "evidence/after-bootstrap-consumer.json"
+      }
+    },
+    {
+      "id": "after-verification-g1-generate",
+      "type": "command.run",
+      "summary": "after verification g1 generate",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:46.772Z",
+      "completed_at": "2026-10-07T23:27:46.952Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo"
+        ],
+        "exit_code": 0,
+        "role": "workflow",
+        "criterion_ids": [
+          "g1"
+        ],
+        "evidence_file": "evidence/after-verification-g1-generate.json"
+      }
+    },
+    {
+      "id": "after-verification-g2-unchanged",
+      "type": "command.run",
+      "summary": "after verification g2 unchanged",
+      "status": "failed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:46.994Z",
+      "completed_at": "2026-10-07T23:27:47.174Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo",
+          "--check"
+        ],
+        "exit_code": 2,
+        "role": "workflow",
+        "criterion_ids": [
+          "g2"
+        ],
+        "evidence_file": "evidence/after-verification-g2-unchanged.json"
+      }
+    },
+    {
+      "id": "after-verification-g3-stale",
+      "type": "command.run",
+      "summary": "after verification g3 stale",
+      "status": "failed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:47.215Z",
+      "completed_at": "2026-10-07T23:27:47.398Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo",
+          "--check"
+        ],
+        "exit_code": 2,
+        "role": "workflow",
+        "criterion_ids": [
+          "g3"
+        ],
+        "evidence_file": "evidence/after-verification-g3-stale.json"
+      }
+    },
+    {
+      "id": "after-verification-g4-remove",
+      "type": "command.run",
+      "summary": "after verification g4 remove",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:47.434Z",
+      "completed_at": "2026-10-07T23:27:47.443Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "<RUN>/hatch-data-after/env/virtual/orgx-skill-verification-consumer/7ELeEWuV/combo/bin/python",
+          "packaging",
+          "six",
+          "idna",
+          "certifi"
+        ],
+        "exit_code": 0,
+        "role": "workflow",
+        "criterion_ids": [
+          "g4"
+        ],
+        "evidence_file": "evidence/after-verification-g4-remove.json"
+      }
+    },
+    {
+      "id": "after-verification-g4-empty",
+      "type": "command.run",
+      "summary": "after verification g4 empty",
+      "status": "failed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:47.444Z",
+      "completed_at": "2026-10-07T23:27:47.493Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/hatch-data-after/env/virtual/orgx-skill-verification-consumer/7ELeEWuV/combo/bin/python",
+          "<RUN>/project-after/workflow_imports.py"
+        ],
+        "exit_code": 1,
+        "role": "workflow",
+        "criterion_ids": [
+          "g4"
+        ],
+        "evidence_file": "evidence/after-verification-g4-empty.json"
+      }
+    },
+    {
+      "id": "after-verification-g4-sync",
+      "type": "command.run",
+      "summary": "after verification g4 sync",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:47.494Z",
+      "completed_at": "2026-10-07T23:27:47.625Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "dep",
+          "sync"
+        ],
+        "exit_code": 0,
+        "role": "workflow",
+        "criterion_ids": [
+          "g4"
+        ],
+        "evidence_file": "evidence/after-verification-g4-sync.json"
+      }
+    },
+    {
+      "id": "after-verification-g4-imports",
+      "type": "command.run",
+      "summary": "after verification g4 imports",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:47.626Z",
+      "completed_at": "2026-10-07T23:27:47.857Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "run",
+          "combo:python",
+          "workflow_imports.py"
+        ],
+        "exit_code": 0,
+        "role": "workflow",
+        "criterion_ids": [
+          "g4"
+        ],
+        "evidence_file": "evidence/after-verification-g4-imports.json"
+      }
+    },
+    {
+      "id": "after-verification-g5-pytest",
+      "type": "command.run",
+      "summary": "after verification g5 pytest",
+      "status": "failed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:47.892Z",
+      "completed_at": "2026-10-07T23:27:49.064Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "pytest",
+          "tests/cli/env/test_lock.py",
+          "tests/cli/dep/test_dep_lock.py",
+          "-m",
+          "not requires_internet",
+          "-q",
+          "-o",
+          "addopts="
+        ],
+        "exit_code": 1,
+        "role": "mocked_existing_tests",
+        "criterion_ids": [
+          "g5"
+        ],
+        "evidence_file": "evidence/after-verification-g5-pytest.json"
+      }
+    },
+    {
+      "id": "orgx-native-after-verification",
+      "type": "command.run",
+      "summary": "orgx native after verification",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:46.710Z",
+      "completed_at": "2026-10-07T23:27:49.078Z",
+      "metadata": {
+        "argv": [
+          "node",
+          "<RUN>/native-check-runner.mjs",
+          "after",
+          "verification"
+        ],
+        "exit_code": 0,
+        "role": "native_orgx_check_executor",
+        "criterion_ids": [],
+        "evidence_file": "evidence/orgx-native-after-verification.json"
+      }
+    },
+    {
+      "id": "after-tracked-clean",
+      "type": "command.run",
+      "summary": "after tracked clean",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:27:49.079Z",
+      "completed_at": "2026-10-07T23:27:49.129Z",
+      "metadata": {
+        "argv": [
+          "git",
+          "status",
+          "--porcelain",
+          "--untracked-files=no"
+        ],
+        "exit_code": 0,
+        "role": "provenance",
+        "criterion_ids": [],
+        "evidence_file": "evidence/after-tracked-clean.json"
+      }
+    },
+    {
+      "id": "after-repeat-g1-generate",
+      "type": "command.run",
+      "summary": "after repeat g1 generate",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:28:32.248Z",
+      "completed_at": "2026-10-07T23:28:32.439Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo"
+        ],
+        "exit_code": 0,
+        "role": "workflow",
+        "criterion_ids": [
+          "g1"
+        ],
+        "evidence_file": "evidence/after-repeat-g1-generate.json"
+      }
+    },
+    {
+      "id": "after-repeat-g2-unchanged",
+      "type": "command.run",
+      "summary": "after repeat g2 unchanged",
+      "status": "failed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:28:32.483Z",
+      "completed_at": "2026-10-07T23:28:32.674Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo",
+          "--check"
+        ],
+        "exit_code": 2,
+        "role": "workflow",
+        "criterion_ids": [
+          "g2"
+        ],
+        "evidence_file": "evidence/after-repeat-g2-unchanged.json"
+      }
+    },
+    {
+      "id": "after-repeat-g3-stale",
+      "type": "command.run",
+      "summary": "after repeat g3 stale",
+      "status": "failed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:28:32.712Z",
+      "completed_at": "2026-10-07T23:28:32.898Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo",
+          "--check"
+        ],
+        "exit_code": 2,
+        "role": "workflow",
+        "criterion_ids": [
+          "g3"
+        ],
+        "evidence_file": "evidence/after-repeat-g3-stale.json"
+      }
+    },
+    {
+      "id": "after-repeat-g4-remove",
+      "type": "command.run",
+      "summary": "after repeat g4 remove",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:28:32.936Z",
+      "completed_at": "2026-10-07T23:28:32.945Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "<RUN>/hatch-data-after/env/virtual/orgx-skill-verification-consumer/7ELeEWuV/combo/bin/python",
+          "packaging",
+          "six",
+          "idna",
+          "certifi"
+        ],
+        "exit_code": 0,
+        "role": "workflow",
+        "criterion_ids": [
+          "g4"
+        ],
+        "evidence_file": "evidence/after-repeat-g4-remove.json"
+      }
+    },
+    {
+      "id": "after-repeat-g4-empty",
+      "type": "command.run",
+      "summary": "after repeat g4 empty",
+      "status": "failed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:28:32.946Z",
+      "completed_at": "2026-10-07T23:28:32.995Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/hatch-data-after/env/virtual/orgx-skill-verification-consumer/7ELeEWuV/combo/bin/python",
+          "<RUN>/project-after/workflow_imports.py"
+        ],
+        "exit_code": 1,
+        "role": "workflow",
+        "criterion_ids": [
+          "g4"
+        ],
+        "evidence_file": "evidence/after-repeat-g4-empty.json"
+      }
+    },
+    {
+      "id": "after-repeat-g4-sync",
+      "type": "command.run",
+      "summary": "after repeat g4 sync",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:28:32.995Z",
+      "completed_at": "2026-10-07T23:28:33.111Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "dep",
+          "sync"
+        ],
+        "exit_code": 0,
+        "role": "workflow",
+        "criterion_ids": [
+          "g4"
+        ],
+        "evidence_file": "evidence/after-repeat-g4-sync.json"
+      }
+    },
+    {
+      "id": "after-repeat-g4-imports",
+      "type": "command.run",
+      "summary": "after repeat g4 imports",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:28:33.111Z",
+      "completed_at": "2026-10-07T23:28:33.301Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "run",
+          "combo:python",
+          "workflow_imports.py"
+        ],
+        "exit_code": 0,
+        "role": "workflow",
+        "criterion_ids": [
+          "g4"
+        ],
+        "evidence_file": "evidence/after-repeat-g4-imports.json"
+      }
+    },
+    {
+      "id": "after-repeat-g5-pytest",
+      "type": "command.run",
+      "summary": "after repeat g5 pytest",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:28:33.338Z",
+      "completed_at": "2026-10-07T23:28:34.406Z",
+      "metadata": {
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "pytest",
+          "tests/cli/env/test_lock.py",
+          "tests/cli/dep/test_dep_lock.py",
+          "-m",
+          "not requires_internet",
+          "-q",
+          "-o",
+          "addopts="
+        ],
+        "exit_code": 0,
+        "role": "mocked_existing_tests",
+        "criterion_ids": [
+          "g5"
+        ],
+        "evidence_file": "evidence/after-repeat-g5-pytest.json"
+      }
+    },
+    {
+      "id": "orgx-native-after-repeat",
+      "type": "command.run",
+      "summary": "orgx native after repeat",
+      "status": "completed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:28:32.193Z",
+      "completed_at": "2026-10-07T23:28:34.419Z",
+      "metadata": {
+        "argv": [
+          "node",
+          "<RUN>/native-check-runner.mjs",
+          "after",
+          "repeat"
+        ],
+        "exit_code": 0,
+        "role": "native_orgx_check_executor",
+        "criterion_ids": [],
+        "evidence_file": "evidence/orgx-native-after-repeat.json"
+      }
+    },
+    {
+      "id": "awr-first-validation",
+      "type": "command.run",
+      "summary": "awr first validation",
+      "status": "failed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:31:04.822Z",
+      "completed_at": "2026-10-07T23:31:05.080Z",
+      "metadata": {
+        "argv": [
+          "node",
+          "<RUN>/validate-run.mjs"
+        ],
+        "exit_code": 1,
+        "role": "artifact_validation",
+        "criterion_ids": [],
+        "evidence_file": "evidence/awr-first-validation.json"
+      }
+    },
+    {
+      "id": "awr-second-validation",
+      "type": "command.run",
+      "summary": "awr second validation",
+      "status": "failed",
+      "system": "local-subprocess",
+      "started_at": "2026-10-07T23:31:49.243Z",
+      "completed_at": "2026-10-07T23:31:49.490Z",
+      "metadata": {
+        "argv": [
+          "node",
+          "<RUN>/validate-run.mjs"
+        ],
+        "exit_code": 1,
+        "role": "artifact_validation",
+        "criterion_ids": [],
+        "evidence_file": "evidence/awr-second-validation.json"
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "lock",
+      "kind": "lockfile",
+      "name": "Observed complete four-source lock (local path prefix sanitized)",
+      "role": "output",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/pylock.combo.observed.toml",
+        "uri": "evidence/pylock.combo.observed.toml"
+      },
+      "media_type": "application/toml"
+    },
+    {
+      "id": "criteria",
+      "kind": "verification_plan",
+      "name": "Frozen skill-guided criteria/check declaration",
+      "role": "output",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "criteria-plan.json"
+      }
+    },
+    {
+      "id": "capture",
+      "kind": "event_log",
+      "name": "Prospective public workflow events; not native client transcript",
+      "role": "output",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/public-events.jsonl"
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "id": "checkout-before",
+      "kind": "command_result",
+      "summary": "checkout-before; actual exit 0",
+      "observed_at": "2026-10-07T23:27:02.850Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/checkout-before.json",
+        "uri": "evidence/checkout-before.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "cdfdf1a2d63a0e938d91f7fb5f001cd5dec20d8b8e6e11b8d3b64f945c67412b",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "HEAD is now at 34dba22e Annotate relevant_config as dict[str, Any] to prevent mypy from narrowing its key type and rejecting valid \"dirs\" access (#2248)\nPreparing worktree (detached HEAD 34dba22e)\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "git",
+          "-C",
+          "<PREVIOUS_SETUP>/hatch",
+          "worktree",
+          "add",
+          "--detach",
+          "<RUN>/hatch-before",
+          "34dba22e5e3c7b7468b67f53f93b7340e54609b8"
+        ],
+        "criterion_ids": [],
+        "role": "setup"
+      }
+    },
+    {
+      "id": "checkout-after",
+      "kind": "command_result",
+      "summary": "checkout-after; actual exit 0",
+      "observed_at": "2026-10-07T23:27:02.911Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/checkout-after.json",
+        "uri": "evidence/checkout-after.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "5b915e1c5d864f164c034618d3e8bada289332465f94ed8dda646fce5f79f001",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "HEAD is now at d0dc39b4 Merge branch 'master' into env-lock-feature\nPreparing worktree (detached HEAD d0dc39b4)\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "git",
+          "-C",
+          "<PREVIOUS_SETUP>/hatch",
+          "worktree",
+          "add",
+          "--detach",
+          "<RUN>/hatch-after",
+          "d0dc39b4f89032caf52dbdac02edd8bb26521288"
+        ],
+        "criterion_ids": [],
+        "role": "setup"
+      }
+    },
+    {
+      "id": "source-subjects",
+      "kind": "command_result",
+      "summary": "source-subjects; actual exit 0",
+      "observed_at": "2026-10-07T23:27:44.645Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/source-subjects.json",
+        "uri": "evidence/source-subjects.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "6734be48c05c967a2a7452d871a5d074015035818cf9a4b1f16486d9c4ec2507",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "d0dc39b4f89032caf52dbdac02edd8bb26521288 f646117e2e065cef7a2e363699fb95315a29a7ae 15ca0826341f964a340f8e36fc6cc2b4ce4014e8 34dba22e5e3c7b7468b67f53f93b7340e54609b8 Merge branch 'master' into env-lock-feature\n89fb3cb5c5d314b76e47f24dbb2c9b5e5bd4cae1 f646117e2e065cef7a2e363699fb95315a29a7ae 34dba22e5e3c7b7468b67f53f93b7340e54609b8 Add env lock command to generate PEP compliant lock files. (#2216)\n34dba22e5e3c7b7468b67f53f93b7340e54609b8 41a010d1ec8e8903e629da8d659f6314034bc125 8184083cd51e8a1660a9f1a474ffe56d5e6a2132 Annotate relevant_config as dict[str, Any] to prevent mypy from narrowing its key type and rejecting valid \"dirs\" access (#2248)\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "git",
+          "-C",
+          "<PREVIOUS_SETUP>/hatch",
+          "show",
+          "-s",
+          "--format=%H %T %P %s",
+          "d0dc39b4f89032caf52dbdac02edd8bb26521288",
+          "89fb3cb5c5d314b76e47f24dbb2c9b5e5bd4cae1",
+          "34dba22e5e3c7b7468b67f53f93b7340e54609b8"
+        ],
+        "criterion_ids": [],
+        "role": "provenance"
+      }
+    },
+    {
+      "id": "head-merge-tree-equivalence",
+      "kind": "command_result",
+      "summary": "head-merge-tree-equivalence; actual exit 0",
+      "observed_at": "2026-10-07T23:27:44.648Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/head-merge-tree-equivalence.json",
+        "uri": "evidence/head-merge-tree-equivalence.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "6b1b13f679a2d260d05b44ed9e2097db7ad2ab7c9d11a4cd02a8bf7484f56d2e",
+          "encoding": "hex"
+        }
+      },
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "git",
+          "-C",
+          "<PREVIOUS_SETUP>/hatch",
+          "diff",
+          "--exit-code",
+          "d0dc39b4f89032caf52dbdac02edd8bb26521288^{tree}",
+          "89fb3cb5c5d314b76e47f24dbb2c9b5e5bd4cae1^{tree}"
+        ],
+        "criterion_ids": [],
+        "role": "provenance"
+      }
+    },
+    {
+      "id": "runtime-python",
+      "kind": "command_result",
+      "summary": "runtime-python; actual exit 0",
+      "observed_at": "2026-10-07T23:27:44.650Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/runtime-python.json",
+        "uri": "evidence/runtime-python.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "a4d53bea7fff6ff390490fa302ec98b009aec88aa9a9bd5720610618a3df962b",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Python 3.12.14\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "--version"
+        ],
+        "criterion_ids": [],
+        "role": "provenance"
+      }
+    },
+    {
+      "id": "runtime-uv",
+      "kind": "command_result",
+      "summary": "runtime-uv; actual exit 0",
+      "observed_at": "2026-10-07T23:27:44.655Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/runtime-uv.json",
+        "uri": "evidence/runtime-uv.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "b16329be6d2b16a08ba408f2a81a29934456e734deafccf25b4dd78584da82cd",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "uv 0.12.23 (x86_64-unknown-linux-gnu)\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "<RUN>/runtime/bin/uv",
+          "--version"
+        ],
+        "criterion_ids": [],
+        "role": "provenance"
+      }
+    },
+    {
+      "id": "runtime-freeze",
+      "kind": "command_result",
+      "summary": "runtime-freeze; actual exit 0",
+      "observed_at": "2026-10-07T23:27:44.864Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/runtime-freeze.json",
+        "uri": "evidence/runtime-freeze.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "d00458b50825e405ce451d0239608bc9ea5bc353b5ee980a0fdf0547b97913e5",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "anyio==4.15.1\nbackports.zstd==1.7.0\ncertifi==2026.7.22\ncffi==2.1.1\nclick==8.5.0\ncoverage==7.16.2\ncryptography==50.0.2\ndistlib==0.4.3\nexecnet==2.1.2\nfilelock==4.0.12\nflaky==3.8.1\nh11==0.16.0\n-e git+https://github.com/pypa/hatch.git@89fb3cb5c5d314b76e47f24dbb2c9b5e5bd4cae1#egg=hatch&subdirectory=../../../hatch-fixed\nhatchling==1.32.4\nhttpcore==1.0.9\nhttpx==0.28.1\nhyperlink==21.0.0\nidna==3.20\niniconfig==2.3.1\njaraco.classes==3.4.0\njaraco.context==6.1.2\njaraco.functools==4.6.0\njeepney==0.9.0\nkeyring==25.7.0\nmarkdown-it-py==4.2.0\nmdurl==0.1.2\nmore-itertools==11.1.0\npackaging==26.3\npathspec==1.1.1\npexpect==4.9.0\npip==26.2.1\nplatformdirs==4.12.3\npluggy==1.6.0\nptyprocess==0.7.0\npycparser==3.0\nPygments==2.21.0\npyproject_hooks==1.3.3\npytest==9.1.1\npytest-mock==3.16.0\npytest-timeout==2.4.0\npytest-xdist==3.8.0\npython-discovery==1.6.1\nrich==15.0.0\nSecretStorage==3.5.0\nshellingham==1.5.4\ntomli_w==1.2.0\ntomlkit==0.15.1\ntrove-classifiers==2026.9.21.13\ntrustme==1.2.1\ntyping_extensions==4.16.0\nuserpath==1.9.2\nuv==0.12.23\nvirtualenv==21.14.5\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "pip",
+          "freeze",
+          "--all"
+        ],
+        "criterion_ids": [],
+        "role": "provenance"
+      }
+    },
+    {
+      "id": "runtime-system",
+      "kind": "command_result",
+      "summary": "runtime-system; actual exit 0",
+      "observed_at": "2026-10-07T23:27:44.866Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/runtime-system.json",
+        "uri": "evidence/runtime-system.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "c05a99a0465e69e6be644f8f68d8259c4222fa013ac11b9af41a70090fb90c79",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Linux 6.18.44 x86_64\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "uname",
+          "-srm"
+        ],
+        "criterion_ids": [],
+        "role": "provenance"
+      }
+    },
+    {
+      "id": "before-bootstrap-consumer",
+      "kind": "command_result",
+      "summary": "before-bootstrap-consumer; actual exit 0",
+      "observed_at": "2026-10-07T23:27:45.263Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/before-bootstrap-consumer.json",
+        "uri": "evidence/before-bootstrap-consumer.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "1252654636fff42a018645f436be16287177ccde256cd44d54c3c31af83333a6",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Creating environment: combo\nChecking dependencies\nSyncing dependencies\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "run",
+          "combo:python",
+          "-c",
+          "pass"
+        ],
+        "criterion_ids": [],
+        "role": "workflow_setup"
+      }
+    },
+    {
+      "id": "before-baseline-g1-generate",
+      "kind": "command_result",
+      "summary": "before-baseline-g1-generate; actual exit 2",
+      "observed_at": "2026-10-07T23:27:45.419Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/before-baseline-g1-generate.json",
+        "uri": "evidence/before-baseline-g1-generate.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "d999371b5c95876ea2b34e9a61250e340d270d7fec7b26a68ef094461066161a",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Usage: hatch env [OPTIONS] COMMAND [ARGS]...\nTry 'hatch env --help' for help.\n\nError: No such command 'lock'.\n",
+      "metadata": {
+        "exit_code": 2,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo"
+        ],
+        "criterion_ids": [
+          "g1"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "before-baseline-g2-unchanged",
+      "kind": "command_result",
+      "summary": "before-baseline-g2-unchanged; actual exit 2",
+      "observed_at": "2026-10-07T23:27:45.560Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/before-baseline-g2-unchanged.json",
+        "uri": "evidence/before-baseline-g2-unchanged.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "7ad449b1106264c897dc0ab4f9841daae688e9074b26b0a716cd3ba2c6437fa2",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Usage: hatch env [OPTIONS] COMMAND [ARGS]...\nTry 'hatch env --help' for help.\n\nError: No such command 'lock'.\n",
+      "metadata": {
+        "exit_code": 2,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo",
+          "--check"
+        ],
+        "criterion_ids": [
+          "g2"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "before-baseline-g3-stale",
+      "kind": "command_result",
+      "summary": "before-baseline-g3-stale; actual exit 2",
+      "observed_at": "2026-10-07T23:27:45.707Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/before-baseline-g3-stale.json",
+        "uri": "evidence/before-baseline-g3-stale.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "13d0b4a3df55c7c605e6e9421b1248f0da612bef6ed483bd2c531f2ddcae19ea",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Usage: hatch env [OPTIONS] COMMAND [ARGS]...\nTry 'hatch env --help' for help.\n\nError: No such command 'lock'.\n",
+      "metadata": {
+        "exit_code": 2,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo",
+          "--check"
+        ],
+        "criterion_ids": [
+          "g3"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "before-baseline-g4-remove",
+      "kind": "command_result",
+      "summary": "before-baseline-g4-remove; actual exit 0",
+      "observed_at": "2026-10-07T23:27:45.753Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/before-baseline-g4-remove.json",
+        "uri": "evidence/before-baseline-g4-remove.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "33bfac3e784de791342563485b922d0279e2778830f5460acc59c7dcf1e092dd",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Using Python 3.12.14 environment at: <RUN>/hatch-data-before/env/virtual/orgx-skill-verification-consumer/V3SWuP5H/combo\nwarning: Skipping packaging as it is not installed\nUninstalled 3 packages in 1ms\n - certifi==2025.1.31\n - idna==3.10\n - six==1.17.0\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "<RUN>/runtime/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "<RUN>/hatch-data-before/env/virtual/orgx-skill-verification-consumer/V3SWuP5H/combo/bin/python",
+          "packaging",
+          "six",
+          "idna",
+          "certifi"
+        ],
+        "criterion_ids": [
+          "g4"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "before-baseline-g4-empty",
+      "kind": "command_result",
+      "summary": "before-baseline-g4-empty; actual exit 1",
+      "observed_at": "2026-10-07T23:27:45.804Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/before-baseline-g4-empty.json",
+        "uri": "evidence/before-baseline-g4-empty.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "1752fd4ae72d496375c7ef2f1a67710f6f4184edfde4cb52d27dbb73b004e97e",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Traceback (most recent call last):\n  File \"<RUN>/project-before/workflow_imports.py\", line 3, in <module>\n    import packaging, six, idna, certifi\nModuleNotFoundError: No module named 'packaging'\n",
+      "metadata": {
+        "exit_code": 1,
+        "argv": [
+          "<RUN>/hatch-data-before/env/virtual/orgx-skill-verification-consumer/V3SWuP5H/combo/bin/python",
+          "<RUN>/project-before/workflow_imports.py"
+        ],
+        "criterion_ids": [
+          "g4"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "before-baseline-g4-sync",
+      "kind": "command_result",
+      "summary": "before-baseline-g4-sync; actual exit 2",
+      "observed_at": "2026-10-07T23:27:45.888Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/before-baseline-g4-sync.json",
+        "uri": "evidence/before-baseline-g4-sync.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "7af0b5b9bc0126dc3f3033d94405ec0f37dcd3519c09cc22760dc2f25f4d8758",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Usage: hatch dep [OPTIONS] COMMAND [ARGS]...\nTry 'hatch dep --help' for help.\n\nError: No such command 'sync'.\n",
+      "metadata": {
+        "exit_code": 2,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "dep",
+          "sync"
+        ],
+        "criterion_ids": [
+          "g4"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "before-baseline-g5-pytest",
+      "kind": "command_result",
+      "summary": "before-baseline-g5-pytest; actual exit 4",
+      "observed_at": "2026-10-07T23:27:46.278Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/before-baseline-g5-pytest.json",
+        "uri": "evidence/before-baseline-g5-pytest.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "3d5e096d6bdd36d1fbbd7791afd33e63351161ca20692645af1dc3d4e775f38b",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "\nno tests ran in 0.00s\nERROR: file or directory not found: tests/cli/env/test_lock.py\n\n",
+      "metadata": {
+        "exit_code": 4,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "pytest",
+          "tests/cli/env/test_lock.py",
+          "tests/cli/dep/test_dep_lock.py",
+          "-m",
+          "not requires_internet",
+          "-q",
+          "-o",
+          "addopts="
+        ],
+        "criterion_ids": [
+          "g5"
+        ],
+        "role": "mocked_existing_tests"
+      }
+    },
+    {
+      "id": "orgx-native-before-baseline",
+      "kind": "command_result",
+      "summary": "orgx-native-before-baseline; actual exit 0",
+      "observed_at": "2026-10-07T23:27:46.290Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/orgx-native-before-baseline.json",
+        "uri": "evidence/orgx-native-before-baseline.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "673427deae915e7095f8fd23d5f76d27cdb69b4385400c6d91b213d195e75567",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "ile\\\": \\\"evidence/before-baseline-g4-remove.json\\\"}\\nUsing Python 3.12.14 environment at: <RUN>/hatch-data-before/env/virtual/orgx-skill-verification-consumer/V3SWuP5H/combo\\nwarning: Skipping packaging as it is not installed\\nUninstalled 3 packages in 1ms\\n - certifi==2025.1.31\\n - idna==3.10\\n - six==1.17.0\\n\\n{\\\"action_id\\\": \\\"before-baseline-g4-empty\\\", \\\"exit_code\\\": 1, \\\"evidence_file\\\": \\\"evidence/before-baseline-g4-empty.json\\\"}\\nTraceback (most recent call last):\\n  File \\\"<RUN>/project-before/workflow_imports.py\\\", line 3, in <module>\\n    import packaging, six, idna, certifi\\nModuleNotFoundError: No module named 'packaging'\\n\\n{\\\"action_id\\\": \\\"before-baseline-g4-sync\\\", \\\"exit_code\\\": 2, \\\"evidence_file\\\": \\\"evidence/before-baseline-g4-sync.json\\\"}\\nUsage: hatch dep [OPTIONS] COMMAND [ARGS]...\\nTry 'hatch dep --help' for help.\\n\\nError: No such command 'sync'.\\n\\n{\\\"criterion\\\": \\\"g4\\\", \\\"stage\\\": \\\"before\\\", \\\"phase\\\": \\\"baseline\\\", \\\"result\\\": \\\"failed\\\", \\\"failure\\\": \\\"{'action': 'before-baseline-g4-sync', 'exit_code': 2, 'stderr': \\\\\\\"Usage: hatch dep [OPTIONS] COMMAND [ARGS]...\\\\\\\\nTry 'hatch dep --help' for help.\\\\\\\\n\\\\\\\\nError: No such command 'sync'.\\\\\\\\n\\\\\\\"}\\\"}\\n\"\n    },\n    {\n      \"id\": \"g5\",\n      \"exit_code\": 1,\n      \"timed_out\": false,\n      \"output_tail\": \"{\\\"action_id\\\": \\\"before-baseline-g5-pytest\\\", \\\"exit_code\\\": 4, \\\"evidence_file\\\": \\\"evidence/before-baseline-g5-pytest.json\\\"}\\n\\nno tests ran in 0.00s\\nERROR: file or directory not found: tests/cli/env/test_lock.py\\n\\n\\n{\\\"criterion\\\": \\\"g5\\\", \\\"stage\\\": \\\"before\\\", \\\"phase\\\": \\\"baseline\\\", \\\"result\\\": \\\"failed\\\", \\\"failure\\\": \\\"{'action': 'before-baseline-g5-pytest', 'exit_code': 4, 'stderr': 'ERROR: file or directory not found: tests/cli/env/test_lock.py\\\\\\\\n\\\\\\\\n'}\\\"}\\n\"\n    }\n  ]\n}\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "node",
+          "<RUN>/native-check-runner.mjs",
+          "before",
+          "baseline"
+        ],
+        "criterion_ids": [],
+        "role": "native_orgx_check_executor"
+      }
+    },
+    {
+      "id": "before-tracked-clean",
+      "kind": "command_result",
+      "summary": "before-tracked-clean; actual exit 0",
+      "observed_at": "2026-10-07T23:27:46.341Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/before-tracked-clean.json",
+        "uri": "evidence/before-tracked-clean.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "112db6b6ca6e3d36c68551582b742058b360e24f20855254ab23cb3667bfb721",
+          "encoding": "hex"
+        }
+      },
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "git",
+          "status",
+          "--porcelain",
+          "--untracked-files=no"
+        ],
+        "criterion_ids": [],
+        "role": "provenance"
+      }
+    },
+    {
+      "id": "after-bootstrap-consumer",
+      "kind": "command_result",
+      "summary": "after-bootstrap-consumer; actual exit 0",
+      "observed_at": "2026-10-07T23:27:46.709Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-bootstrap-consumer.json",
+        "uri": "evidence/after-bootstrap-consumer.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "8e94052b631161c729bae00d41d6859198e9627b710219d045c4491e03a7b71b",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Creating environment: combo\nLocking environment: combo\nChecking dependencies\nSyncing dependencies\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "run",
+          "combo:python",
+          "-c",
+          "pass"
+        ],
+        "criterion_ids": [],
+        "role": "workflow_setup"
+      }
+    },
+    {
+      "id": "after-verification-g1-generate",
+      "kind": "command_result",
+      "summary": "after-verification-g1-generate; actual exit 0",
+      "observed_at": "2026-10-07T23:27:46.952Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-verification-g1-generate.json",
+        "uri": "evidence/after-verification-g1-generate.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "86db7bcd1f368582b6174d39f4d9288e56bd90f97335b8f662fcab1c8ce94843",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Wrote lockfile: <RUN>/project-after/pylock.combo.toml\nLocking environment: combo\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo"
+        ],
+        "criterion_ids": [
+          "g1"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "after-verification-g2-unchanged",
+      "kind": "command_result",
+      "summary": "after-verification-g2-unchanged; actual exit 2",
+      "observed_at": "2026-10-07T23:27:47.174Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-verification-g2-unchanged.json",
+        "uri": "evidence/after-verification-g2-unchanged.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "34d87a0c837273b14a9cd4db16ac9957f98526c5ec60021d78ef7a5563a193c9",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Checking lockfile for: combo\nerror: Expected the output filename to be `pylock.toml` or `pylock.<name>.toml`, where `<name>` is non-empty and contains no dots; found `tmpo6kd7xrw.toml`\n",
+      "metadata": {
+        "exit_code": 2,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo",
+          "--check"
+        ],
+        "criterion_ids": [
+          "g2"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "after-verification-g3-stale",
+      "kind": "command_result",
+      "summary": "after-verification-g3-stale; actual exit 2",
+      "observed_at": "2026-10-07T23:27:47.398Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-verification-g3-stale.json",
+        "uri": "evidence/after-verification-g3-stale.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "cc9ebc04e0c2b1560fcb8f103d7b675d8d59d3c66dc449bbdcb04ccc779b3b7f",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Checking lockfile for: combo\nerror: Expected the output filename to be `pylock.toml` or `pylock.<name>.toml`, where `<name>` is non-empty and contains no dots; found `tmpbm_v8v0d.toml`\n",
+      "metadata": {
+        "exit_code": 2,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo",
+          "--check"
+        ],
+        "criterion_ids": [
+          "g3"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "after-verification-g4-remove",
+      "kind": "command_result",
+      "summary": "after-verification-g4-remove; actual exit 0",
+      "observed_at": "2026-10-07T23:27:47.443Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-verification-g4-remove.json",
+        "uri": "evidence/after-verification-g4-remove.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "342f3dcf96ff6dccabccfe655837d9cc706147366e7fbcf660dc8a08a9b06eb9",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Using Python 3.12.14 environment at: <RUN>/hatch-data-after/env/virtual/orgx-skill-verification-consumer/7ELeEWuV/combo\nUninstalled 4 packages in 1ms\n - certifi==2025.1.31\n - idna==3.10\n - packaging==24.2\n - six==1.17.0\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "<RUN>/runtime/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "<RUN>/hatch-data-after/env/virtual/orgx-skill-verification-consumer/7ELeEWuV/combo/bin/python",
+          "packaging",
+          "six",
+          "idna",
+          "certifi"
+        ],
+        "criterion_ids": [
+          "g4"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "after-verification-g4-empty",
+      "kind": "command_result",
+      "summary": "after-verification-g4-empty; actual exit 1",
+      "observed_at": "2026-10-07T23:27:47.493Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-verification-g4-empty.json",
+        "uri": "evidence/after-verification-g4-empty.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "ba1b8788bd88ddec9f60471063c011ca8d824196cc95ea6d77fcbfa4bc4178d1",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Traceback (most recent call last):\n  File \"<RUN>/project-after/workflow_imports.py\", line 3, in <module>\n    import packaging, six, idna, certifi\nModuleNotFoundError: No module named 'packaging'\n",
+      "metadata": {
+        "exit_code": 1,
+        "argv": [
+          "<RUN>/hatch-data-after/env/virtual/orgx-skill-verification-consumer/7ELeEWuV/combo/bin/python",
+          "<RUN>/project-after/workflow_imports.py"
+        ],
+        "criterion_ids": [
+          "g4"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "after-verification-g4-sync",
+      "kind": "command_result",
+      "summary": "after-verification-g4-sync; actual exit 0",
+      "observed_at": "2026-10-07T23:27:47.625Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-verification-g4-sync.json",
+        "uri": "evidence/after-verification-g4-sync.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "6757c5d3e6a153579f25f6b3e537afaca351b699dfecaa9d6294492acb991371",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Syncing from lockfile\nSynced environment `combo` from `pylock.combo.toml`\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "dep",
+          "sync"
+        ],
+        "criterion_ids": [
+          "g4"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "after-verification-g4-imports",
+      "kind": "command_result",
+      "summary": "after-verification-g4-imports; actual exit 0",
+      "observed_at": "2026-10-07T23:27:47.857Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-verification-g4-imports.json",
+        "uri": "evidence/after-verification-g4-imports.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "ac9006f5a63e420efc8e6bdf40885e1ac617ec1fe8fa1499982c877072058569",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "{\"status\": \"passed\", \"versions\": {\"certifi\": \"2025.1.31\", \"idna\": \"3.10\", \"packaging\": \"24.2\", \"six\": \"1.17.0\"}, \"workflow\": \"imports after sync\"}\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "run",
+          "combo:python",
+          "workflow_imports.py"
+        ],
+        "criterion_ids": [
+          "g4"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "after-verification-g5-pytest",
+      "kind": "command_result",
+      "summary": "after-verification-g5-pytest; actual exit 1",
+      "observed_at": "2026-10-07T23:27:49.064Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-verification-g5-pytest.json",
+        "uri": "evidence/after-verification-g5-pytest.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "d23130fa38d0dc8ddc4045e37e8418ba549f0e94c4563b61b745258cac5175dd",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "le' in 'Unknown environment: combo\\n'\nE        +  where 'Unknown environment: combo\\n' = <Result SystemExit(1)>.output\n\n<RUN>/hatch-after/tests/cli/dep/test_dep_lock.py:210: AssertionError\n=========================== short test summary info ============================\nFAILED tests/cli/dep/test_dep_lock.py::test_dep_lock_export - AssertionError: Environment `combo` is not defined by project config\n  \nassert 1 == 0\n +  where 1 = <Result SystemExit(1)>.exit_code\nFAILED tests/cli/dep/test_dep_lock.py::test_top_level_lock_matches_dep_lock - AssertionError: assert 1 == 0\n +  where 1 = <Result SystemExit(1)>.exit_code\n +    where <Result SystemExit(1)> = <tests.conftest.CliRunner object at 0x7fe5f36b71a0>('dep', 'lock', '--export', '/tmp/tmp39vlhkrx/via-dep.toml')\nFAILED tests/cli/dep/test_dep_lock.py::test_dep_sync_succeeds_skipping_real_activation - AssertionError: assert 1 == 0\n +  where 1 = <Result SystemExit(1)>.exit_code\n +    where <Result SystemExit(1)> = <tests.conftest.CliRunner object at 0x7fe5f36b71a0>('dep', 'lock')\nFAILED tests/cli/dep/test_dep_lock.py::test_dep_sync_aborts_when_pip_locker_cannot_apply - AssertionError: assert 1 == 0\n +  where 1 = <Result SystemExit(1)>.exit_code\n +    where <Result SystemExit(1)> = <tests.conftest.CliRunner object at 0x7fe5f36b71a0>('dep', 'lock')\nFAILED tests/cli/dep/test_dep_lock.py::test_dep_sync_aborts_when_not_locked - AssertionError: assert 'not `locked`' in 'Unknown environment: combo\\n'\n +  where 'Unknown environment: combo\\n' = <Result SystemExit(1)>.output\nFAILED tests/cli/dep/test_dep_lock.py::test_dep_sync_aborts_without_lockfile - AssertionError: assert 'No lockfile' in 'Unknown environment: combo\\n'\n +  where 'Unknown environment: combo\\n' = <Result SystemExit(1)>.output\n6 failed, 22 passed, 7 deselected in 0.81s\n",
+      "metadata": {
+        "exit_code": 1,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "pytest",
+          "tests/cli/env/test_lock.py",
+          "tests/cli/dep/test_dep_lock.py",
+          "-m",
+          "not requires_internet",
+          "-q",
+          "-o",
+          "addopts="
+        ],
+        "criterion_ids": [
+          "g5"
+        ],
+        "role": "mocked_existing_tests"
+      }
+    },
+    {
+      "id": "orgx-native-after-verification",
+      "kind": "command_result",
+      "summary": "orgx-native-after-verification; actual exit 0",
+      "observed_at": "2026-10-07T23:27:49.078Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/orgx-native-after-verification.json",
+        "uri": "evidence/orgx-native-after-verification.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "e1dc5a998cbe676fc619a44b25db67f627a8494ddb920b3824ffba19b43e1187",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "mmary info ============================\\nFAILED tests/cli/dep/test_dep_lock.py::test_dep_lock_export - AssertionError: Environment `combo` is not defined by project config\\n  \\nassert 1 == 0\\n +  where 1 = <Result SystemExit(1)>.exit_code\\nFAILED tests/cli/dep/test_dep_lock.py::test_top_level_lock_matches_dep_lock - AssertionError: assert 1 == 0\\n +  where 1 = <Result SystemExit(1)>.exit_code\\n +    where <Result SystemExit(1)> = <tests.conftest.CliRunner object at 0x7fe5f36b71a0>('dep', 'lock', '--export', '/tmp/tmp39vlhkrx/via-dep.toml')\\nFAILED tests/cli/dep/test_dep_lock.py::test_dep_sync_succeeds_skipping_real_activation - AssertionError: assert 1 == 0\\n +  where 1 = <Result SystemExit(1)>.exit_code\\n +    where <Result SystemExit(1)> = <tests.conftest.CliRunner object at 0x7fe5f36b71a0>('dep', 'lock')\\nFAILED tests/cli/dep/test_dep_lock.py::test_dep_sync_aborts_when_pip_locker_cannot_apply - AssertionError: assert 1 == 0\\n +  where 1 = <Result SystemExit(1)>.exit_code\\n +    where <Result SystemExit(1)> = <tests.conftest.CliRunner object at 0x7fe5f36b71a0>('dep', 'lock')\\nFAILED tests/cli/dep/test_dep_lock.py::test_dep_sync_aborts_when_not_locked - AssertionError: assert 'not `locked`' in 'Unknown environment: combo\\\\n'\\n +  where 'Unknown environment: combo\\\\n' = <Result SystemExit(1)>.output\\nFAILED tests/cli/dep/test_dep_lock.py::test_dep_sync_aborts_without_lockfile - AssertionError: assert 'No lockfile' in 'Unknown environment: combo\\\\n'\\n +  where 'Unknown environment: combo\\\\n' = <Result SystemExit(1)>.output\\n6 failed, 22 passed, 7 deselected in 0.81s\\n\\n{\\\"criterion\\\": \\\"g5\\\", \\\"stage\\\": \\\"after\\\", \\\"phase\\\": \\\"verification\\\", \\\"result\\\": \\\"failed\\\", \\\"failure\\\": \\\"{'action': 'after-verification-g5-pytest', 'exit_code': 1, 'stderr': ''}\\\"}\\n\"\n    }\n  ]\n}\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "node",
+          "<RUN>/native-check-runner.mjs",
+          "after",
+          "verification"
+        ],
+        "criterion_ids": [],
+        "role": "native_orgx_check_executor"
+      }
+    },
+    {
+      "id": "after-tracked-clean",
+      "kind": "command_result",
+      "summary": "after-tracked-clean; actual exit 0",
+      "observed_at": "2026-10-07T23:27:49.129Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-tracked-clean.json",
+        "uri": "evidence/after-tracked-clean.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "d11fc7f8214427309c0c6452e1549b7b46e110be269c2005ab8d4748e8869846",
+          "encoding": "hex"
+        }
+      },
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "git",
+          "status",
+          "--porcelain",
+          "--untracked-files=no"
+        ],
+        "criterion_ids": [],
+        "role": "provenance"
+      }
+    },
+    {
+      "id": "after-repeat-g1-generate",
+      "kind": "command_result",
+      "summary": "after-repeat-g1-generate; actual exit 0",
+      "observed_at": "2026-10-07T23:28:32.439Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-repeat-g1-generate.json",
+        "uri": "evidence/after-repeat-g1-generate.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "f7536be5bc7d44c6c0310c9802029fd7b88cd02d2132ebb5eea394b59934f167",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Wrote lockfile: <RUN>/project-after/pylock.combo.toml\nLocking environment: combo\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo"
+        ],
+        "criterion_ids": [
+          "g1"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "after-repeat-g2-unchanged",
+      "kind": "command_result",
+      "summary": "after-repeat-g2-unchanged; actual exit 2",
+      "observed_at": "2026-10-07T23:28:32.674Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-repeat-g2-unchanged.json",
+        "uri": "evidence/after-repeat-g2-unchanged.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "d71f2ce3bb5a16f9e7b9bf15ac34fca1ac03c39d9b87159caed0fccdacf8e921",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Checking lockfile for: combo\nerror: Expected the output filename to be `pylock.toml` or `pylock.<name>.toml`, where `<name>` is non-empty and contains no dots; found `tmpq9ylsc5a.toml`\n",
+      "metadata": {
+        "exit_code": 2,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo",
+          "--check"
+        ],
+        "criterion_ids": [
+          "g2"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "after-repeat-g3-stale",
+      "kind": "command_result",
+      "summary": "after-repeat-g3-stale; actual exit 2",
+      "observed_at": "2026-10-07T23:28:32.898Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-repeat-g3-stale.json",
+        "uri": "evidence/after-repeat-g3-stale.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "6599ec5f8a1a2ce98444abbd7f8a7d7c0a96c769b192ee0095a895ab35c45c12",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Checking lockfile for: combo\nerror: Expected the output filename to be `pylock.toml` or `pylock.<name>.toml`, where `<name>` is non-empty and contains no dots; found `tmp5clol22v.toml`\n",
+      "metadata": {
+        "exit_code": 2,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "env",
+          "lock",
+          "combo",
+          "--check"
+        ],
+        "criterion_ids": [
+          "g3"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "after-repeat-g4-remove",
+      "kind": "command_result",
+      "summary": "after-repeat-g4-remove; actual exit 0",
+      "observed_at": "2026-10-07T23:28:32.945Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-repeat-g4-remove.json",
+        "uri": "evidence/after-repeat-g4-remove.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "a185bcab33176c89c8bda446a2ba07f2da33ccc24a1f05c19618da711cf9de1f",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Using Python 3.12.14 environment at: <RUN>/hatch-data-after/env/virtual/orgx-skill-verification-consumer/7ELeEWuV/combo\nUninstalled 4 packages in 1ms\n - certifi==2025.1.31\n - idna==3.10\n - packaging==24.2\n - six==1.17.0\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "<RUN>/runtime/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "<RUN>/hatch-data-after/env/virtual/orgx-skill-verification-consumer/7ELeEWuV/combo/bin/python",
+          "packaging",
+          "six",
+          "idna",
+          "certifi"
+        ],
+        "criterion_ids": [
+          "g4"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "after-repeat-g4-empty",
+      "kind": "command_result",
+      "summary": "after-repeat-g4-empty; actual exit 1",
+      "observed_at": "2026-10-07T23:28:32.995Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-repeat-g4-empty.json",
+        "uri": "evidence/after-repeat-g4-empty.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "6333978ab7a1f308ac9c2c89ed5fdbc3d96e8fd23022868fe946222e97ec4b37",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Traceback (most recent call last):\n  File \"<RUN>/project-after/workflow_imports.py\", line 3, in <module>\n    import packaging, six, idna, certifi\nModuleNotFoundError: No module named 'packaging'\n",
+      "metadata": {
+        "exit_code": 1,
+        "argv": [
+          "<RUN>/hatch-data-after/env/virtual/orgx-skill-verification-consumer/7ELeEWuV/combo/bin/python",
+          "<RUN>/project-after/workflow_imports.py"
+        ],
+        "criterion_ids": [
+          "g4"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "after-repeat-g4-sync",
+      "kind": "command_result",
+      "summary": "after-repeat-g4-sync; actual exit 0",
+      "observed_at": "2026-10-07T23:28:33.111Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-repeat-g4-sync.json",
+        "uri": "evidence/after-repeat-g4-sync.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "eb26eb31286b5a34e210da11dd7fd8b1c11df210d3d35ee8b52f88c652626995",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "Syncing from lockfile\nSynced environment `combo` from `pylock.combo.toml`\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "dep",
+          "sync"
+        ],
+        "criterion_ids": [
+          "g4"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "after-repeat-g4-imports",
+      "kind": "command_result",
+      "summary": "after-repeat-g4-imports; actual exit 0",
+      "observed_at": "2026-10-07T23:28:33.301Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-repeat-g4-imports.json",
+        "uri": "evidence/after-repeat-g4-imports.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "911f873f7ef899647a6e68fc8c06b9a28566f1e07b8c2f613cba869e3018580a",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "{\"status\": \"passed\", \"versions\": {\"certifi\": \"2025.1.31\", \"idna\": \"3.10\", \"packaging\": \"24.2\", \"six\": \"1.17.0\"}, \"workflow\": \"imports after sync\"}\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "hatch",
+          "run",
+          "combo:python",
+          "workflow_imports.py"
+        ],
+        "criterion_ids": [
+          "g4"
+        ],
+        "role": "workflow"
+      }
+    },
+    {
+      "id": "after-repeat-g5-pytest",
+      "kind": "command_result",
+      "summary": "after-repeat-g5-pytest; actual exit 0",
+      "observed_at": "2026-10-07T23:28:34.406Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/after-repeat-g5-pytest.json",
+        "uri": "evidence/after-repeat-g5-pytest.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "0069474856840f0c0aad02e8cf4c476003790d7dbedc5a7e01c539be01153a32",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "............................                                             [100%]\n28 passed, 7 deselected in 0.74s\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "<RUN>/runtime/bin/python",
+          "-m",
+          "pytest",
+          "tests/cli/env/test_lock.py",
+          "tests/cli/dep/test_dep_lock.py",
+          "-m",
+          "not requires_internet",
+          "-q",
+          "-o",
+          "addopts="
+        ],
+        "criterion_ids": [
+          "g5"
+        ],
+        "role": "mocked_existing_tests"
+      }
+    },
+    {
+      "id": "orgx-native-after-repeat",
+      "kind": "command_result",
+      "summary": "orgx-native-after-repeat; actual exit 0",
+      "observed_at": "2026-10-07T23:28:34.419Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/orgx-native-after-repeat.json",
+        "uri": "evidence/orgx-native-after-repeat.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "674213beefb3f8029b3742ad0e256af1c631a4d735654bf0dc5c6eb6f9a9865b",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "\\\"evidence/after-repeat-g4-remove.json\\\"}\\nUsing Python 3.12.14 environment at: <RUN>/hatch-data-after/env/virtual/orgx-skill-verification-consumer/7ELeEWuV/combo\\nUninstalled 4 packages in 1ms\\n - certifi==2025.1.31\\n - idna==3.10\\n - packaging==24.2\\n - six==1.17.0\\n\\n{\\\"action_id\\\": \\\"after-repeat-g4-empty\\\", \\\"exit_code\\\": 1, \\\"evidence_file\\\": \\\"evidence/after-repeat-g4-empty.json\\\"}\\nTraceback (most recent call last):\\n  File \\\"<RUN>/project-after/workflow_imports.py\\\", line 3, in <module>\\n    import packaging, six, idna, certifi\\nModuleNotFoundError: No module named 'packaging'\\n\\n{\\\"action_id\\\": \\\"after-repeat-g4-sync\\\", \\\"exit_code\\\": 0, \\\"evidence_file\\\": \\\"evidence/after-repeat-g4-sync.json\\\"}\\nSyncing from lockfile\\nSynced environment `combo` from `pylock.combo.toml`\\n\\n{\\\"action_id\\\": \\\"after-repeat-g4-imports\\\", \\\"exit_code\\\": 0, \\\"evidence_file\\\": \\\"evidence/after-repeat-g4-imports.json\\\"}\\n{\\\"status\\\": \\\"passed\\\", \\\"versions\\\": {\\\"certifi\\\": \\\"2025.1.31\\\", \\\"idna\\\": \\\"3.10\\\", \\\"packaging\\\": \\\"24.2\\\", \\\"six\\\": \\\"1.17.0\\\"}, \\\"workflow\\\": \\\"imports after sync\\\"}\\n\\n{\\\"criterion\\\": \\\"g4\\\", \\\"result\\\": \\\"passed\\\", \\\"observed_empty_failure\\\": true, \\\"restored_versions\\\": {\\\"packaging\\\": \\\"24.2\\\", \\\"six\\\": \\\"1.17.0\\\", \\\"idna\\\": \\\"3.10\\\", \\\"certifi\\\": \\\"2025.1.31\\\"}}\\n\"\n    },\n    {\n      \"id\": \"g5\",\n      \"exit_code\": 0,\n      \"timed_out\": false,\n      \"output_tail\": \"{\\\"action_id\\\": \\\"after-repeat-g5-pytest\\\", \\\"exit_code\\\": 0, \\\"evidence_file\\\": \\\"evidence/after-repeat-g5-pytest.json\\\"}\\n............................                                             [100%]\\n28 passed, 7 deselected in 0.74s\\n\\n{\\\"criterion\\\": \\\"g5\\\", \\\"result\\\": \\\"passed\\\", \\\"existing_tests\\\": 28, \\\"network_tests_deselected\\\": 7, \\\"mocked_vs_workflow\\\": \\\"separate\\\"}\\n\"\n    }\n  ]\n}\n",
+      "metadata": {
+        "exit_code": 0,
+        "argv": [
+          "node",
+          "<RUN>/native-check-runner.mjs",
+          "after",
+          "repeat"
+        ],
+        "criterion_ids": [],
+        "role": "native_orgx_check_executor"
+      }
+    },
+    {
+      "id": "awr-first-validation",
+      "kind": "command_result",
+      "summary": "awr-first-validation; actual exit 1",
+      "observed_at": "2026-10-07T23:31:05.080Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/awr-first-validation.json",
+        "uri": "evidence/awr-first-validation.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "d97d5976987dd15f536639b84b45e9fb2ed5a2d221f1fcb56a43f0ffc7abc2d6",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "file://<RUN>/validate-run.mjs:13\nfor(const r of [receipt,...raw]){const v=validateAgentWorkReceipt(r);if(!v.ok)throw Error(JSON.stringify({receipt:r.receipt_id,issues:v}));}\n                                                                                    ^\n\nError: {\"receipt\":\"orgx-skill-hatch-2216-2026-10-07-v1\",\"issues\":{\"ok\":false,\"issues\":[{\"path\":\"/metadata\",\"code\":\"schema.additional_property\",\"message\":\"Property is not allowed by this Agent Work Receipt version.\"}],\"issue_count\":1,\"issues_truncated\":false}}\n    at file://<RUN>/validate-run.mjs:13:85\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v24.19.0\n",
+      "metadata": {
+        "exit_code": 1,
+        "argv": [
+          "node",
+          "<RUN>/validate-run.mjs"
+        ],
+        "criterion_ids": [],
+        "role": "artifact_validation"
+      }
+    },
+    {
+      "id": "awr-second-validation",
+      "kind": "command_result",
+      "summary": "awr-second-validation; actual exit 1",
+      "observed_at": "2026-10-07T23:31:49.490Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "evidence/awr-second-validation.json",
+        "uri": "evidence/awr-second-validation.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "fa319a4167ed13cbf2235b5fb4fa30b623b4110b94e906b74e34b51d810599f2",
+          "encoding": "hex"
+        }
+      },
+      "excerpt": "file://<RUN>/validate-run.mjs:13\nfor(const r of [receipt,...raw]){const v=validateAgentWorkReceipt(r);if(!v.ok)throw Error(JSON.stringify({receipt:r.receipt_id,issues:v}));}\n                                                                                    ^\n\nError: {\"receipt\":\"orgx-skill-hatch-2216-2026-10-07-v1\",\"issues\":{\"ok\":false,\"issues\":[{\"path\":\"/evidence/3/excerpt\",\"code\":\"schema.minLength\",\"message\":\"String is shorter than the contract minimum.\"}],\"issue_count\":1,\"issues_truncated\":false}}\n    at file://<RUN>/validate-run.mjs:13:85\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v24.19.0\n",
+      "metadata": {
+        "exit_code": 1,
+        "argv": [
+          "node",
+          "<RUN>/validate-run.mjs"
+        ],
+        "criterion_ids": [],
+        "role": "artifact_validation"
+      }
+    },
+    {
+      "id": "criteria-plan",
+      "kind": "declaration",
+      "summary": "criteria-plan.json",
+      "observed_at": "2026-10-07T23:32:19.035Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "criteria-plan.json",
+        "uri": "criteria-plan.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "9da0f7717721a6491c5ae9b0cb6e7f3adeb36a3d3b685d1bfd1036f26960b70c",
+          "encoding": "hex"
+        }
+      }
+    },
+    {
+      "id": "skill-provenance",
+      "kind": "declaration",
+      "summary": "skill-provenance.json",
+      "observed_at": "2026-10-07T23:32:19.035Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "skill-provenance.json",
+        "uri": "skill-provenance.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "a365abc31b7e7aed61bcfe5e662f3e2e2a347434e3c655d2fbcecaf0349c98d1",
+          "encoding": "hex"
+        }
+      }
+    },
+    {
+      "id": "pre-execution-freeze",
+      "kind": "declaration",
+      "summary": "pre-execution-freeze.json",
+      "observed_at": "2026-10-07T23:32:19.035Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "pre-execution-freeze.json",
+        "uri": "pre-execution-freeze.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "2d78d46677cf0a0fb43a3c41d3b54bb1a62ff4bb56e856fe3ac798065a82e7fc",
+          "encoding": "hex"
+        }
+      }
+    },
+    {
+      "id": "capture-contract",
+      "kind": "declaration",
+      "summary": "capture-contract.json",
+      "observed_at": "2026-10-07T23:32:19.035Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "capture-contract.json",
+        "uri": "capture-contract.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "1e0633c978a1bb4192fd99721bfc998d8fc2d539bdfd4e3be76199f74e78b3db",
+          "encoding": "hex"
+        }
+      }
+    },
+    {
+      "id": "input-fingerprints",
+      "kind": "environment_fingerprint",
+      "summary": "input-fingerprints.json",
+      "observed_at": "2026-10-07T23:32:19.035Z",
+      "ref": {
+        "system": "local-evidence",
+        "type": "file",
+        "id": "input-fingerprints.json",
+        "uri": "input-fingerprints.json",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "9944308810aea02a10e3774fd19f9ff774b80b9a82908ec0b6b2ca057c64ca2f",
+          "encoding": "hex"
+        }
+      }
+    }
+  ],
+  "outcome": {
+    "status": "partially_succeeded",
+    "summary": "Four-source lock completeness and restored consumer imports pass; 28 focused tests pass after correcting outer test-environment contamination. Unchanged and semantic stale checks both fail with recorded uv filename incompatibility.",
+    "acceptance": {
+      "status": "pending"
+    },
+    "criteria_results": [
+      {
+        "criterion_id": "g1",
+        "status": "met",
+        "evidence_ids": [
+          "after-repeat-g1-generate",
+          "orgx-native-after-repeat"
+        ],
+        "confidence": 1
+      },
+      {
+        "criterion_id": "g2",
+        "status": "unmet",
+        "evidence_ids": [
+          "after-repeat-g2-unchanged",
+          "orgx-native-after-repeat"
+        ],
+        "confidence": 1,
+        "notes": "Actual Hatch exit 2: uv 0.12.23 rejects generic temporary .toml filename."
+      },
+      {
+        "criterion_id": "g3",
+        "status": "unmet",
+        "evidence_ids": [
+          "after-repeat-g3-stale",
+          "orgx-native-after-repeat"
+        ],
+        "confidence": 1,
+        "notes": "Actual Hatch exit 2 with resolver filename error; required semantic stale response is exit 1 with matching message."
+      },
+      {
+        "criterion_id": "g4",
+        "status": "met",
+        "evidence_ids": [
+          "after-repeat-g4-remove",
+          "after-repeat-g4-empty",
+          "after-repeat-g4-sync",
+          "after-repeat-g4-imports",
+          "orgx-native-after-repeat"
+        ],
+        "confidence": 1
+      },
+      {
+        "criterion_id": "g5",
+        "status": "met",
+        "evidence_ids": [
+          "after-repeat-g5-pytest",
+          "orgx-native-after-repeat"
+        ],
+        "confidence": 1,
+        "notes": "Initial inherited HATCH_ENV=combo caused 6 failures/22 passes; clean outer repeat passed 28, 7 network deselected. Frozen checks unchanged."
+      }
+    ],
+    "expected_results": [
+      {
+        "expected_id": "four-pinned-packages",
+        "status": "within",
+        "observed": 4,
+        "evidence_ids": [
+          "after-repeat-g4-imports"
+        ],
+        "confidence": 1
+      },
+      {
+        "expected_id": "unchanged-exit",
+        "status": "outside",
+        "observed": 2,
+        "evidence_ids": [
+          "after-repeat-g2-unchanged"
+        ],
+        "confidence": 1
+      },
+      {
+        "expected_id": "stale-exit",
+        "status": "outside",
+        "observed": 2,
+        "evidence_ids": [
+          "after-repeat-g3-stale"
+        ],
+        "confidence": 1
+      }
+    ],
+    "metadata": {
+      "production_adoption": "not_measured",
+      "review_or_productivity_uplift": "not_measured",
+      "historical_contributor_session": false,
+      "subject": "d0dc39b4f89032caf52dbdac02edd8bb26521288",
+      "prior_repair_applied": false
+    }
+  },
+  "verification": {
+    "status": "partial",
+    "method": "Frozen agent-generated checks following pinned OrgX skills; unmodified OrgX local command runner; prospective actual subprocess output; baseline parent and exact final PR head.",
+    "verifier": {
+      "type": "service",
+      "id": "orgx-local-command-check-runner",
+      "display_name": "OrgX runCommandChecks with frozen agent-generated scripts",
+      "runtime": {
+        "name": "@useorgx/wizard shim/lib/checks.mjs",
+        "version": "0.1.87"
+      },
+      "metadata": {
+        "source_sha256": "1cf964b530007e33f2d03f36c30fbf912117a0d141defa4dbf7a56133a4aa0ea",
+        "not_claimed": [
+          "OrgX server approval",
+          "Stop hook installation",
+          "independent model judge"
+        ]
+      }
+    },
+    "checks": [
+      {
+        "id": "verify-g1",
+        "name": "Generate pylock.combo.toml; parse lock-version 1.0; exactly four pinned package versions from project, environment, extra and dependency group; SHA-256 hashes on every available wheel/sdist entry. Bounded structure, not PEP 751 certification.",
+        "status": "passed",
+        "criterion_ids": [
+          "g1"
+        ],
+        "evidence_ids": [
+          "after-repeat-g1-generate",
+          "orgx-native-after-repeat"
+        ],
+        "method": "Frozen checks.py executed by unmodified OrgX runCommandChecks; actual child check exit and recorded command outputs.",
+        "details": "Actual output satisfies frozen assertions."
+      },
+      {
+        "id": "verify-g2",
+        "name": "Unchanged dependency inputs: hatch env lock combo --check exits 0. An unrelated resolver error must remain failure.",
+        "status": "failed",
+        "criterion_ids": [
+          "g2"
+        ],
+        "evidence_ids": [
+          "after-repeat-g2-unchanged",
+          "orgx-native-after-repeat"
+        ],
+        "method": "Frozen checks.py executed by unmodified OrgX runCommandChecks; actual child check exit and recorded command outputs.",
+        "details": "Actual Hatch exit 2: uv 0.12.23 rejects generic temporary .toml filename."
+      },
+      {
+        "id": "verify-g3",
+        "name": "Change available six input from 1.17.0 to 1.16.0: --check exits exactly 1 and reports Lockfile is not up to date; restore exact original inputs. Exit 2 is an execution error, not proof of semantic stale detection.",
+        "status": "failed",
+        "criterion_ids": [
+          "g3"
+        ],
+        "evidence_ids": [
+          "after-repeat-g3-stale",
+          "orgx-native-after-repeat"
+        ],
+        "method": "Frozen checks.py executed by unmodified OrgX runCommandChecks; actual child check exit and recorded command outputs.",
+        "details": "Actual Hatch exit 2 with resolver filename error; required semantic stale response is exit 1 with matching message."
+      },
+      {
+        "id": "verify-g4",
+        "name": "Remove all four consumer packages, observe import failure, run hatch dep sync and import all four exact pinned versions successfully in the same consumer environment.",
+        "status": "passed",
+        "criterion_ids": [
+          "g4"
+        ],
+        "evidence_ids": [
+          "after-repeat-g4-remove",
+          "after-repeat-g4-empty",
+          "after-repeat-g4-sync",
+          "after-repeat-g4-imports",
+          "orgx-native-after-repeat"
+        ],
+        "method": "Frozen checks.py executed by unmodified OrgX runCommandChecks; actual child check exit and recorded command outputs.",
+        "details": "Actual output satisfies frozen assertions."
+      },
+      {
+        "id": "verify-g5",
+        "name": "Existing focused lock-command tests report 28 passing tests, with 7 network tests deselected; report mocked tests separately from consumer workflow evidence. Parent snapshot has no new lock test files, which is availability rather than a quality regression.",
+        "status": "passed",
+        "criterion_ids": [
+          "g5"
+        ],
+        "evidence_ids": [
+          "after-repeat-g5-pytest",
+          "orgx-native-after-repeat"
+        ],
+        "method": "Frozen checks.py executed by unmodified OrgX runCommandChecks; actual child check exit and recorded command outputs.",
+        "details": "Initial inherited HATCH_ENV=combo caused 6 failures/22 passes; clean outer repeat passed 28, 7 network deselected. Frozen checks unchanged."
+      }
+    ],
+    "evidence_ids": [
+      "checkout-before",
+      "checkout-after",
+      "source-subjects",
+      "head-merge-tree-equivalence",
+      "runtime-python",
+      "runtime-uv",
+      "runtime-freeze",
+      "runtime-system",
+      "before-bootstrap-consumer",
+      "before-baseline-g1-generate",
+      "before-baseline-g2-unchanged",
+      "before-baseline-g3-stale",
+      "before-baseline-g4-remove",
+      "before-baseline-g4-empty",
+      "before-baseline-g4-sync",
+      "before-baseline-g5-pytest",
+      "orgx-native-before-baseline",
+      "before-tracked-clean",
+      "after-bootstrap-consumer",
+      "after-verification-g1-generate",
+      "after-verification-g2-unchanged",
+      "after-verification-g3-stale",
+      "after-verification-g4-remove",
+      "after-verification-g4-empty",
+      "after-verification-g4-sync",
+      "after-verification-g4-imports",
+      "after-verification-g5-pytest",
+      "orgx-native-after-verification",
+      "after-tracked-clean",
+      "after-repeat-g1-generate",
+      "after-repeat-g2-unchanged",
+      "after-repeat-g3-stale",
+      "after-repeat-g4-remove",
+      "after-repeat-g4-empty",
+      "after-repeat-g4-sync",
+      "after-repeat-g4-imports",
+      "after-repeat-g5-pytest",
+      "orgx-native-after-repeat",
+      "awr-first-validation",
+      "awr-second-validation",
+      "criteria-plan",
+      "skill-provenance",
+      "pre-execution-freeze",
+      "capture-contract",
+      "input-fingerprints"
+    ],
+    "verified_at": "2026-10-07T23:32:19.036Z",
+    "notes": "Existing mocked focused tests and real offline consumer workflow are distinct. Actual client transcript, OrgX server gate and independent quality judge did not run."
+  },
+  "cost": {
+    "currency": "XXX",
+    "total": 0,
+    "estimated": true,
+    "metadata": {
+      "status": "unmeasured",
+      "representation": "Required AWR numeric placeholder; do not display as observed zero spend. Token, billing, human time and model cost not measured."
+    }
+  },
+  "lineage": {
+    "run_ref": {
+      "system": "local-skill-verification",
+      "type": "run",
+      "id": "orgx-skill-hatch-2216-2026-10-07-v1"
+    },
+    "parent_receipt_refs": [],
+    "references": [
+      {
+        "relationship": "produced_from",
+        "ref": {
+          "system": "github",
+          "type": "pull_request",
+          "id": "pypa/hatch#2216",
+          "uri": "https://github.com/pypa/hatch/pull/2216"
+        }
+      },
+      {
+        "relationship": "reviews",
+        "ref": {
+          "system": "git",
+          "type": "commit",
+          "id": "d0dc39b4f89032caf52dbdac02edd8bb26521288"
+        }
+      },
+      {
+        "relationship": "depends_on",
+        "ref": {
+          "system": "git",
+          "type": "commit",
+          "id": "34dba22e5e3c7b7468b67f53f93b7340e54609b8"
+        }
+      }
+    ],
+    "metadata": {
+      "earlier_runs": "Separate known context, not this execution or a parent implementation. Earlier merge and final PR head share the observed Git tree."
+    }
+  },
+  "human_interventions": [],
+  "timestamps": {
+    "started_at": "2026-10-07T23:27:02.780Z",
+    "completed_at": "2026-10-07T23:32:19.034Z",
+    "issued_at": "2026-10-07T23:32:19.036Z"
+  },
+  "provenance": [
+    {
+      "path": "/intent/criteria",
+      "basis": "declared",
+      "by": {
+        "type": "agent",
+        "id": "current-codex-agent",
+        "display_name": "Codex agent applying pinned OrgX guidance",
+        "runtime": {
+          "name": "Codex conversation plus prospective local subprocess recorder",
+          "version": "record.py v1"
+        },
+        "metadata": {
+          "exact_model_id": "unmeasured",
+          "criteria_generator": "this agent following skills; not OrgX scaffold or autonomous enforcement"
+        }
+      },
+      "at": "2026-10-07T23:27:02.779Z",
+      "method": "Agent follows pinned OrgX skills; freeze before checks; not scaffold generation",
+      "confidence": 1
+    },
+    {
+      "path": "/verification",
+      "basis": "observed",
+      "by": {
+        "type": "service",
+        "id": "orgx-local-command-check-runner",
+        "display_name": "OrgX runCommandChecks with frozen agent-generated scripts",
+        "runtime": {
+          "name": "@useorgx/wizard shim/lib/checks.mjs",
+          "version": "0.1.87"
+        },
+        "metadata": {
+          "source_sha256": "1cf964b530007e33f2d03f36c30fbf912117a0d141defa4dbf7a56133a4aa0ea",
+          "not_claimed": [
+            "OrgX server approval",
+            "Stop hook installation",
+            "independent model judge"
+          ]
+        }
+      },
+      "method": "Unmodified native OrgX command runner and actual recorded subprocess results",
+      "confidence": 1
+    },
+    {
+      "path": "/outcome/criteria_results",
+      "basis": "observed",
+      "method": "Frozen child checks actual exits; failure history preserved",
+      "confidence": 1
+    },
+    {
+      "path": "/trajectory",
+      "basis": "declared",
+      "by": {
+        "type": "agent",
+        "id": "current-codex-agent",
+        "display_name": "Codex agent applying pinned OrgX guidance",
+        "runtime": {
+          "name": "Codex conversation plus prospective local subprocess recorder",
+          "version": "record.py v1"
+        },
+        "metadata": {
+          "exact_model_id": "unmeasured",
+          "criteria_generator": "this agent following skills; not OrgX scaffold or autonomous enforcement"
+        }
+      },
+      "method": "Selected public decisions recorded prospectively; not hidden reasoning",
+      "confidence": 1
+    },
+    {
+      "path": "/cost/total",
+      "basis": "declared",
+      "method": "Unmeasured schema placeholder; UI must display unknown",
+      "confidence": 0
+    }
+  ],
+  "trajectory": [
+    {
+      "id": "d-isolation",
+      "kind": "change_of_course",
+      "trigger": "self",
+      "summary": "Use exact final PR head, fresh detached worktrees, consumer projects, Hatch/cache directories and copied public wheels; reuse a preloaded pinned interpreter without reinstalling it. Basis: Avoid network/spend while maintaining isolated mutable workflow state; exact interpreter fingerprint recorded.",
+      "occurred_at": "2026-10-07T23:27:02.780Z",
+      "evidence_ids": [],
+      "action_ids": [],
+      "confidence": 1
+    },
+    {
+      "id": "d-capture-limit",
+      "kind": "change_of_course",
+      "trigger": "self",
+      "summary": "No native transcript export exists through the checked supported client route. Keep event projection classification, and do not read raw session directories or fabricate adapter material. Basis: Existing app-server proxy ENOENT; callable tool discovery contains no current-session transcript export.",
+      "occurred_at": "2026-10-07T23:27:02.781Z",
+      "evidence_ids": [],
+      "action_ids": [],
+      "confidence": 1
+    },
+    {
+      "id": "d-preserve-failure",
+      "kind": "change_of_course",
+      "trigger": "self",
+      "summary": "Keep unchanged/stale check criteria even though the prior run found a modern uv incompatibility. No local repair is applied in this run. Basis: Skill guidance forbids weakening a check to match observed output; prior repair remains a separate artifact.",
+      "occurred_at": "2026-10-07T23:27:02.781Z",
+      "evidence_ids": [],
+      "action_ids": [],
+      "confidence": 1
+    },
+    {
+      "id": "d-version-bootstrap",
+      "kind": "change_of_course",
+      "trigger": "self",
+      "summary": "Copy the generated, ignored Hatch _version.py bootstrap from the preloaded setup into both fresh snapshots; do not modify tracked feature code. Basis: Raw Git checkout omits this VCS build artifact. Its copied content/hash and tracked-clean status remain recorded, not represented as freshly generated code.",
+      "occurred_at": "2026-10-07T23:27:02.912Z",
+      "evidence_ids": [],
+      "action_ids": [],
+      "confidence": 1
+    },
+    {
+      "id": "d-instructions-before",
+      "kind": "change_of_course",
+      "trigger": "self",
+      "summary": "Selected snapshot instruction check before execution: No AGENTS.md present Basis: Explicit selected worktree check; no unrelated session-directory scan",
+      "occurred_at": "2026-10-07T23:27:44.869Z",
+      "evidence_ids": [],
+      "action_ids": [],
+      "confidence": 1
+    },
+    {
+      "id": "d-instructions-after",
+      "kind": "change_of_course",
+      "trigger": "self",
+      "summary": "Selected snapshot instruction check before execution: No AGENTS.md present Basis: Explicit selected worktree check; no unrelated session-directory scan",
+      "occurred_at": "2026-10-07T23:27:46.345Z",
+      "evidence_ids": [],
+      "action_ids": [],
+      "confidence": 1
+    },
+    {
+      "id": "d-test-env-recovery",
+      "kind": "retry",
+      "trigger": "error",
+      "summary": "The focused test subprocess inherited HATCH_ENV=combo from the outer native-runner launch, selecting a consumer environment absent in test fixtures. Repeat the unchanged frozen criteria through the native runner without that outer workflow environment. Basis: First focused result: 6 failed, 22 passed, 7 deselected; all six failures say combo undefined/unknown. checks.py, criteria-plan.json and native-check-runner.mjs remain unchanged.",
+      "occurred_at": "2026-10-07T23:28:32.192Z",
+      "evidence_ids": [
+        "after-verification-g5-pytest",
+        "orgx-native-after-verification"
+      ],
+      "action_ids": [
+        "after-verification-g5-pytest",
+        "orgx-native-after-verification"
+      ],
+      "confidence": 1
+    },
+    {
+      "id": "d-awr-schema-repair",
+      "kind": "change_of_course",
+      "trigger": "self",
+      "summary": "AWR validator rejects invented root metadata. Move capture/provenance context to a namespaced native extensions field; preserve existing observed results and frozen criteria. Basis: Actual validation schema.additional_property at /metadata; no claim of valid receipt until successful repeat.",
+      "occurred_at": "2026-10-07T23:31:05.081Z",
+      "evidence_ids": [
+        "awr-first-validation"
+      ],
+      "action_ids": [
+        "awr-first-validation"
+      ],
+      "confidence": 1
+    },
+    {
+      "id": "d-empty-excerpt-repair",
+      "kind": "change_of_course",
+      "trigger": "self",
+      "summary": "A silent successful command had an empty optional evidence excerpt; omit absent excerpts rather than inventing output. Preserve the recorded empty stdout/stderr and exit status. Basis: AWR schema minLength rejected /evidence/3/excerpt after prior root-field repair.",
+      "occurred_at": "2026-10-07T23:31:49.491Z",
+      "evidence_ids": [
+        "awr-second-validation"
+      ],
+      "action_ids": [
+        "awr-second-validation"
+      ],
+      "confidence": 1
+    },
+    {
+      "id": "d-required-evidence-time",
+      "kind": "change_of_course",
+      "trigger": "self",
+      "summary": "Add required observed_at timestamps to file-based declaration/fingerprint evidence when the exporter reads and hashes those files. Do not backdate their observation or change the pre-execution declaration timestamp. Basis: Actual upstream AWR validation reported missing /evidence/40/observed_at; schema required evidence fields inspected before repair.",
+      "occurred_at": "2026-10-07T23:32:16.250Z",
+      "evidence_ids": [],
+      "action_ids": [],
+      "confidence": 1
+    }
+  ],
+  "extensions": {
+    "org.orgx.skill-verification/v1": {
+      "capture_contract": {
+        "classification": "prospective selected public workflow event recorder; not native client transcript or installed runtime hook",
+        "actor": {
+          "identity": "Codex agent in this conversation",
+          "criteria_generator": "this agent following pinned OrgX skill guidance",
+          "model_id": null,
+          "model_id_note": "exact execution model telemetry not exposed or measured"
+        },
+        "event_contract": {
+          "file": "evidence/public-events.jsonl",
+          "kinds": [
+            "task_intent",
+            "criteria_declared",
+            "decision",
+            "action_started",
+            "action_result",
+            "input_change",
+            "input_restore",
+            "execution_summary"
+          ],
+          "sequence": "append order; actual UTC capture time",
+          "integrity": "SHA-256 chain of canonical JSON; not signed and not tamper-proof against producer rewrite",
+          "command_results": "actual subprocess argv, cwd, start/end, exit, full public-safe stdout/stderr and evidence SHA-256"
+        },
+        "native_components": {
+          "checks": "unmodified OrgX runCommandChecks imported from shim/lib/checks.mjs",
+          "exports": "AWR v0.2 schema/validator and native Trail receipt/outline/CLI export",
+          "not_run": [
+            "OrgX criteria set API",
+            "OrgX Stop-hook permission gate",
+            "OrgX scaffold generation",
+            "native Trail Codex adapter over genuine transcript",
+            "independent four-lens quality judge"
+          ]
+        },
+        "client_transcript": {
+          "status": "unavailable",
+          "supported_probe": "Codex CLI 0.159.0-alpha.3 existing app-server daemon version/proxy initialization",
+          "error": "control socket /run/codex-environment/codex-home/app-server-control/app-server-control.sock missing (ENOENT)",
+          "no_raw_session_directories_read": true,
+          "no_hidden_reasoning_or_system_prompts": true,
+          "no_new_model_session_or_spending_commitment": true
+        },
+        "trail_label": "event projection of recorded public work; client other, model null, reasoning empty; no adapter or historical contributor capture claim",
+        "prior_context": "Earlier run and local repair are known context; not copied execution evidence. Independent PR-only baseline is unread; this is not a blinded or randomized causal comparison.",
+        "capture_scope": "Begins at task/criteria declaration below; earlier repository inspection, actor thought processes, tool transport envelopes and this entire chat are not fully captured.",
+        "page_required_missing_layer": "Actual client transcript capture unavailable; Trail is a recorded-event projection."
+      },
+      "skill_provenance": {
+        "frozen_at": "2026-10-07T23:27:02.779Z",
+        "skill_repository_revision": "cb181f33b230d3d969d27f10606217da098353b3",
+        "wizard_revision": "de4228e47b26fb3545bd3add3a1a1eb91cf8f651",
+        "wizard_version": "0.1.87",
+        "codex_plugin_revision": "947802a3cf729f23b6954f71326a88ecf1a9dd24",
+        "sources": [
+          {
+            "id": "capability",
+            "original_path": "/workspace/skills/orgx-capability-mindset/SKILL.md",
+            "bundle_path": "sources/SKILL.md",
+            "version": "2.2.0",
+            "sha256": "e4e9fb45b9765ef2ff126846a653ad133313e0f1c4d1782dbd1b68b4517f55f7",
+            "use": "applied: declare before execution; discriminating checks; authority; truthful outcome"
+          },
+          {
+            "id": "awr-guidance",
+            "original_path": "/workspace/skills/orgx-capability-mindset/reference/agent-work-receipt.md",
+            "bundle_path": "sources/agent-work-receipt.md",
+            "version": null,
+            "sha256": "cbecc09a0c282ec30605c121ff85ffffa67f644534157f325aee700c9e7ae4ee",
+            "use": "applied: native AWR and no non-discriminating tests"
+          },
+          {
+            "id": "quality",
+            "original_path": "/workspace/skills/orgx-quality-bar/SKILL.md",
+            "bundle_path": "sources/quality-SKILL.md",
+            "version": "1.0.0",
+            "sha256": "02addc3c5811561318a5b02c6dff3871dad08cb6a97b232c3cc2e2ef8c4e4f24",
+            "use": "applied: measured versus observed versus outcome; no unsupported quality verdict"
+          },
+          {
+            "id": "engineering",
+            "original_path": "/workspace/skills/engineering-agent/SKILL.md",
+            "bundle_path": "sources/engineering-SKILL.md",
+            "version": "2.1.0",
+            "sha256": "ba63eeb1412f93cd1b6346184177ab976c2cd20cd8fba708e16f930f37211d02",
+            "use": "inspected; not a claim of complete skill workflow or MCP lifecycle"
+          },
+          {
+            "id": "orgx-check-runner",
+            "original_path": "/workspace/orgx-wizard/shim/lib/checks.mjs",
+            "bundle_path": "sources/checks.mjs",
+            "version": null,
+            "sha256": "1cf964b530007e33f2d03f36c30fbf912117a0d141defa4dbf7a56133a4aa0ea",
+            "use": "executed unmodified locally; no model-based command verdict"
+          },
+          {
+            "id": "trail-codex-adapter",
+            "original_path": "/workspace/scratch/receipt-run/trail/src/adapters.mjs",
+            "bundle_path": "sources/adapters.mjs",
+            "version": null,
+            "sha256": "4d950dd892debf618072cc8d2eba2ab2b6a7735a4aa80db15947f817812eeac4",
+            "use": "inspected; no genuine input export available"
+          },
+          {
+            "id": "scaffold",
+            "original_path": "/workspace/orgx-mcp/src/scaffoldInitiative.ts",
+            "bundle_path": "sources/scaffoldInitiative.ts",
+            "version": null,
+            "sha256": "e09663ab32a75ae7b81a0bd7e06081be162e3784bae67a7bb1220dcb2d20aec6",
+            "use": "inspected; not used as an executable-check generator"
+          }
+        ],
+        "generation": "model guidance applied by this agent; no autonomous OrgX check generation or server enforcement"
+      },
+      "input_fingerprints": {
+        "declared_pins": {
+          "project": "packaging==24.2",
+          "environment": "six==1.17.0",
+          "extra": "idna==3.10",
+          "dependency_group": "certifi==2025.1.31"
+        },
+        "files": {
+          "project-before/pyproject.toml": "2901f17ba3487e8ec06d5a0037838c09df42f4742aa448ae43448861ef9d2122",
+          "project-after/pyproject.toml": "2901f17ba3487e8ec06d5a0037838c09df42f4742aa448ae43448861ef9d2122",
+          "workflow_imports.py": "c20f899cd4d2141fbec079bd8b7d042080b995dfe84bf87c78b4ca9406c55dd2",
+          "hatch-before/src/hatch/_version.py": "fd41b9d501b7e192bcfaabad2bfeaae539efaa2007f2b27f932c28b3b296ed69",
+          "hatch-after/src/hatch/_version.py": "fd41b9d501b7e192bcfaabad2bfeaae539efaa2007f2b27f932c28b3b296ed69",
+          "wheels/certifi-2025.1.31-py3-none-any.whl": "ca78db4565a652026a4db2bcdf68f2fb589ea80d0be70e03929ed730746b84fe",
+          "wheels/idna-3.10-py3-none-any.whl": "946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3",
+          "wheels/packaging-24.2-py3-none-any.whl": "09abb1bccd265c01f4a3aa3f7a7db064b36514d2cba19a2f694fe6150451a759",
+          "wheels/six-1.16.0-py2.py3-none-any.whl": "8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254",
+          "wheels/six-1.17.0-py2.py3-none-any.whl": "4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"
+        },
+        "runtime_python_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "runtime_uv_sha256": "abdc39eab8b4ad341dca91f3823a23a343fae94bdb22ebdd9e91694415206f2f",
+        "runtime_reused": "preloaded interpreter; mutable consumer state is fresh",
+        "historical_ci_equivalence": "not asserted; today Python 3.12.14 and uv 0.12.23, separate from historical CI environment"
+      },
+      "cost_display": {
+        "value": null,
+        "status": "unmeasured"
+      }
+    },
+    "org.orgx.review/v1": {
+      "version": "org.orgx.review/v1",
+      "work": "pypa/hatch #2216 at d0dc39b4",
+      "sources": [
+        {
+          "id": "pr",
+          "type": "pr",
+          "title": "PR #2216",
+          "where": "head d0dc39b4",
+          "href": "https://github.com/pypa/hatch/pull/2216",
+          "note": "The work being checked. Criteria were proposed from its description and diff."
+        },
+        {
+          "id": "plan",
+          "type": "artifact",
+          "title": "Frozen criteria plan",
+          "where": "criteria-plan.json · frozen 2026-10-07T23:27:02.780Z",
+          "note": "Written by the agent before the first command ran. Hashed, so it can’t be edited after the fact."
+        },
+        {
+          "id": "skills",
+          "type": "skill",
+          "title": "Pinned OrgX skills",
+          "where": "capability 2.2.0 · quality 1.0.0 · engineering 2.1.0",
+          "note": "Guidance the agent followed when writing the checks."
+        }
+      ],
+      "criteria": [
+        {
+          "criterion_id": "g1",
+          "group": "Lockfile",
+          "short": "Lock captures all four dependency sources, hashed",
+          "source_refs": [
+            {
+              "source_id": "plan",
+              "at": "criterion g1",
+              "quote": "Generate pylock.combo.toml; parse lock-version 1.0; exactly four pinned package versions from project, environment, extra and dependency group; SHA-256 hashes on every available wheel/sdist entry. Bounded structure, not PEP 751 certification."
+            },
+            {
+              "source_id": "pr",
+              "at": "description and diff",
+              "href": "https://github.com/pypa/hatch/pull/2216"
+            }
+          ],
+          "source_check": "unchecked",
+          "source_note": "Proposed by the agent, not quoted from a spec or ticket. Nobody has confirmed it matches what the PR intended.",
+          "lenses": {
+            "judged": {
+              "status": "none",
+              "note": "No review of this was recorded."
+            },
+            "measured": {
+              "status": "pass",
+              "note": "A real workflow command on the PR head, run locally on Python 3.12.14 and uv 0.12.23.",
+              "evidence_ids": [
+                "after-repeat-g1-generate"
+              ]
+            },
+            "observed": {
+              "status": "pass",
+              "note": "Recorded output shows it working.",
+              "evidence_ids": [
+                "after-repeat-g1-generate"
+              ]
+            },
+            "outcome": {
+              "status": "none",
+              "note": "No log or analytics signal linked."
+            }
+          },
+          "episode_ids": [
+            "ep-f24229893c04"
+          ]
+        },
+        {
+          "criterion_id": "g2",
+          "group": "Lockfile",
+          "short": "--check passes when nothing changed",
+          "source_refs": [
+            {
+              "source_id": "plan",
+              "at": "criterion g2",
+              "quote": "Unchanged dependency inputs: hatch env lock combo --check exits 0. An unrelated resolver error must remain failure."
+            },
+            {
+              "source_id": "pr",
+              "at": "description and diff",
+              "href": "https://github.com/pypa/hatch/pull/2216"
+            }
+          ],
+          "source_check": "unchecked",
+          "source_note": "Proposed by the agent, not quoted from a spec or ticket. Nobody has confirmed it matches what the PR intended.",
+          "lenses": {
+            "judged": {
+              "status": "none",
+              "note": "No review of this was recorded."
+            },
+            "measured": {
+              "status": "fail",
+              "note": "A real workflow command on the PR head, run locally on Python 3.12.14 and uv 0.12.23.",
+              "evidence_ids": [
+                "after-repeat-g2-unchanged"
+              ]
+            },
+            "observed": {
+              "status": "fail",
+              "note": "Recorded output shows the error.",
+              "evidence_ids": [
+                "after-repeat-g2-unchanged"
+              ]
+            },
+            "outcome": {
+              "status": "none",
+              "note": "No log or analytics signal linked."
+            }
+          },
+          "episode_ids": [
+            "ep-6c28af8cef30",
+            "ep-f24229893c04"
+          ]
+        },
+        {
+          "criterion_id": "g3",
+          "group": "Lockfile",
+          "short": "--check rejects a stale lock (exit 1)",
+          "source_refs": [
+            {
+              "source_id": "plan",
+              "at": "criterion g3",
+              "quote": "Change available six input from 1.17.0 to 1.16.0: --check exits exactly 1 and reports Lockfile is not up to date; restore exact original inputs. Exit 2 is an execution error, not proof of semantic stale detection."
+            },
+            {
+              "source_id": "pr",
+              "at": "description and diff",
+              "href": "https://github.com/pypa/hatch/pull/2216"
+            }
+          ],
+          "source_check": "unchecked",
+          "source_note": "Proposed by the agent, not quoted from a spec or ticket. Nobody has confirmed it matches what the PR intended.",
+          "lenses": {
+            "judged": {
+              "status": "none",
+              "note": "No review of this was recorded."
+            },
+            "measured": {
+              "status": "fail",
+              "note": "A real workflow command on the PR head, run locally on Python 3.12.14 and uv 0.12.23.",
+              "evidence_ids": [
+                "after-repeat-g3-stale"
+              ]
+            },
+            "observed": {
+              "status": "fail",
+              "note": "Recorded output shows the error.",
+              "evidence_ids": [
+                "after-repeat-g3-stale"
+              ]
+            },
+            "outcome": {
+              "status": "none",
+              "note": "No log or analytics signal linked."
+            }
+          },
+          "episode_ids": [
+            "ep-6c28af8cef30",
+            "ep-f24229893c04"
+          ]
+        },
+        {
+          "criterion_id": "g4",
+          "group": "Environment",
+          "short": "Sync restores an emptied environment",
+          "source_refs": [
+            {
+              "source_id": "plan",
+              "at": "criterion g4",
+              "quote": "Remove all four consumer packages, observe import failure, run hatch dep sync and import all four exact pinned versions successfully in the same consumer environment."
+            },
+            {
+              "source_id": "pr",
+              "at": "description and diff",
+              "href": "https://github.com/pypa/hatch/pull/2216"
+            }
+          ],
+          "source_check": "unchecked",
+          "source_note": "Proposed by the agent, not quoted from a spec or ticket. Nobody has confirmed it matches what the PR intended.",
+          "lenses": {
+            "judged": {
+              "status": "none",
+              "note": "No review of this was recorded."
+            },
+            "measured": {
+              "status": "pass",
+              "note": "A real workflow command on the PR head, run locally on Python 3.12.14 and uv 0.12.23.",
+              "evidence_ids": [
+                "after-repeat-g4-remove",
+                "after-repeat-g4-empty",
+                "after-repeat-g4-sync",
+                "after-repeat-g4-imports"
+              ]
+            },
+            "observed": {
+              "status": "pass",
+              "note": "Recorded output shows it working.",
+              "evidence_ids": [
+                "after-repeat-g4-remove",
+                "after-repeat-g4-empty",
+                "after-repeat-g4-sync",
+                "after-repeat-g4-imports"
+              ]
+            },
+            "outcome": {
+              "status": "none",
+              "note": "No log or analytics signal linked."
+            }
+          },
+          "episode_ids": [
+            "ep-f24229893c04"
+          ]
+        },
+        {
+          "criterion_id": "g5",
+          "group": "Tests",
+          "short": "The PR’s focused lock tests pass",
+          "source_refs": [
+            {
+              "source_id": "plan",
+              "at": "criterion g5",
+              "quote": "Existing focused lock-command tests report 28 passing tests, with 7 network tests deselected; report mocked tests separately from consumer workflow evidence. Parent snapshot has no new lock test files, which is availability rather than a quality regression."
+            },
+            {
+              "source_id": "pr",
+              "at": "description and diff",
+              "href": "https://github.com/pypa/hatch/pull/2216"
+            }
+          ],
+          "source_check": "unchecked",
+          "source_note": "Proposed by the agent, not quoted from a spec or ticket. Nobody has confirmed it matches what the PR intended.",
+          "lenses": {
+            "judged": {
+              "status": "none",
+              "note": "No review of this was recorded."
+            },
+            "measured": {
+              "status": "pass",
+              "note": "The PR’s own focused tests, many with a mocked locker, run locally.",
+              "evidence_ids": [
+                "after-repeat-g5-pytest"
+              ]
+            },
+            "observed": {
+              "status": "na",
+              "note": "Test output is the proof here."
+            },
+            "outcome": {
+              "status": "none",
+              "note": "No log or analytics signal linked."
+            }
+          },
+          "episode_ids": [
+            "ep-f24229893c04"
+          ]
+        }
+      ],
+      "episodes": [
+        {
+          "id": "ep-6e8c59b6a267",
+          "kind": "change",
+          "at": "2026-10-07T23:27:02.780Z",
+          "title": "Set up clean, separate copies of the PR and its test project",
+          "criterion_ids": [],
+          "trajectory_id": "d-isolation",
+          "thread": "T1",
+          "why": "Reused the pinned Python install to avoid downloads; everything else was fresh."
+        },
+        {
+          "id": "ep-ebaf5ef48e25",
+          "kind": "change",
+          "at": "2026-10-07T23:27:02.781Z",
+          "title": "Recorded events instead of the chat, which couldn’t be exported",
+          "criterion_ids": [],
+          "trajectory_id": "d-capture-limit",
+          "thread": "T1",
+          "why": "The client has no transcript export; nothing was made up to fill the gap."
+        },
+        {
+          "id": "ep-6c28af8cef30",
+          "kind": "change",
+          "at": "2026-10-07T23:27:02.781Z",
+          "title": "Kept both lockfile checks even though an earlier run saw them fail",
+          "criterion_ids": [
+            "g2",
+            "g3"
+          ],
+          "trajectory_id": "d-preserve-failure",
+          "thread": "T1",
+          "why": "The skill forbids weakening a check to match the result."
+        },
+        {
+          "id": "ep-cca238f0e6ec",
+          "kind": "change",
+          "at": "2026-10-07T23:27:02.912Z",
+          "title": "Copied a generated version file into both copies of the code",
+          "criterion_ids": [],
+          "trajectory_id": "d-version-bootstrap",
+          "thread": "T1",
+          "why": "A fresh checkout leaves it out; no feature code was changed."
+        },
+        {
+          "id": "ep-74ce726000a9",
+          "kind": "change",
+          "at": "2026-10-07T23:27:44.869Z",
+          "title": "Looked for repository instructions before running (none found)",
+          "criterion_ids": [],
+          "trajectory_id": "d-instructions-before",
+          "thread": "T1"
+        },
+        {
+          "id": "ep-9eea654ed886",
+          "kind": "change",
+          "at": "2026-10-07T23:27:46.345Z",
+          "title": "Looked for repository instructions on the PR copy (none found)",
+          "criterion_ids": [],
+          "trajectory_id": "d-instructions-after",
+          "thread": "T1"
+        },
+        {
+          "id": "ep-f34a9c0caea3",
+          "kind": "retry",
+          "at": "2026-10-07T23:28:32.192Z",
+          "title": "Re-ran the PR’s tests without a leaked setting",
+          "criterion_ids": [],
+          "trajectory_id": "d-test-env-recovery",
+          "thread": "T2",
+          "why": "First try: 6 tests failed because HATCH_ENV leaked in from outside. The checks themselves were not changed.",
+          "evidence_ids": [
+            "after-verification-g5-pytest",
+            "orgx-native-after-verification"
+          ],
+          "action_ids": [
+            "after-verification-g5-pytest",
+            "orgx-native-after-verification"
+          ]
+        },
+        {
+          "id": "ep-f24229893c04",
+          "kind": "check",
+          "at": "2026-10-07T23:28:32.193Z",
+          "title": "Ran all five frozen checks on the PR head",
+          "why": "Final repeat after fixing the test environment.",
+          "criterion_ids": [
+            "g1",
+            "g2",
+            "g3",
+            "g4",
+            "g5"
+          ],
+          "evidence_ids": [
+            "after-repeat-g1-generate",
+            "after-repeat-g2-unchanged",
+            "after-repeat-g3-stale",
+            "after-repeat-g4-remove",
+            "after-repeat-g4-empty",
+            "after-repeat-g4-sync",
+            "after-repeat-g4-imports",
+            "after-repeat-g5-pytest"
+          ],
+          "thread": "T2"
+        },
+        {
+          "id": "ep-a8d7f83134b7",
+          "kind": "change",
+          "at": "2026-10-07T23:31:05.081Z",
+          "title": "Fixed the receipt so it passes its schema",
+          "criterion_ids": [],
+          "trajectory_id": "d-awr-schema-repair",
+          "thread": "T1",
+          "why": "Moved extra metadata to the extensions field; results unchanged.",
+          "evidence_ids": [
+            "awr-first-validation"
+          ],
+          "action_ids": [
+            "awr-first-validation"
+          ]
+        },
+        {
+          "id": "ep-4260b3e95b1b",
+          "kind": "change",
+          "at": "2026-10-07T23:31:49.491Z",
+          "title": "Left out an empty output excerpt instead of inventing one",
+          "criterion_ids": [],
+          "trajectory_id": "d-empty-excerpt-repair",
+          "thread": "T1",
+          "why": "The schema rejects empty excerpts.",
+          "evidence_ids": [
+            "awr-second-validation"
+          ],
+          "action_ids": [
+            "awr-second-validation"
+          ]
+        },
+        {
+          "id": "ep-b630fd5616f1",
+          "kind": "change",
+          "at": "2026-10-07T23:32:16.250Z",
+          "title": "Added the timestamps the schema requires to file evidence",
+          "criterion_ids": [],
+          "trajectory_id": "d-required-evidence-time",
+          "thread": "T1",
+          "why": "Nothing was backdated."
+        }
+      ],
+      "layers": {
+        "inputs": {
+          "status": "part",
+          "note": "Task statement only"
+        },
+        "sources": {
+          "status": "part",
+          "note": "Agent-written plan"
+        },
+        "transcript": {
+          "status": "missing",
+          "note": "Not captured",
+          "how": "Run the agent through Trail (trail scan) so the conversation is recorded, or use a client that exports its transcript."
+        },
+        "judged": {
+          "status": "missing",
+          "note": "No review",
+          "how": "Add a reviewer pass against the codebase and the pinned skills; record it as a verification check."
+        },
+        "measured": {
+          "status": "full",
+          "note": "5 of 5 tested"
+        },
+        "observed": {
+          "status": "full",
+          "note": "Outputs attached"
+        },
+        "outcome": {
+          "status": "missing",
+          "note": "No signal",
+          "how": "Link a log or analytics query that shows the behavior after release."
+        }
+      },
+      "inputs": [
+        {
+          "who": "Task statement, recorded by the agent",
+          "type": "chat",
+          "text": "New bounded OrgX skill-guided Hatch verification. Generate checks before execution, use OrgX native runner, export honest AWR and Trail event-projection provenance.",
+          "at": "2026-10-07T23:27:02.780Z",
+          "quality": "part"
+        }
+      ],
+      "readings": [
+        {
+          "label": "Trail’s rules, reading only the events",
+          "value": "succeeded · 0 criteria to judge against · confidence 0.6"
+        },
+        {
+          "label": "This receipt, judging each criterion",
+          "value": "3 met, 2 not met"
+        }
+      ],
+      "metadata": {
+        "trail": {
+          "tool_calls": 40,
+          "failed_calls": 15,
+          "backtracks": 5,
+          "threads": [
+            {
+              "id": "T1",
+              "origin": "asked",
+              "status": "unclear",
+              "moves": "rrrrrrrrrXXrXX",
+              "backtracks": 0,
+              "start": "2026-10-07T23:27:02.780Z",
+              "end": "2026-10-07T23:31:49.243Z"
+            },
+            {
+              "id": "T2",
+              "origin": "recovery",
+              "status": "done",
+              "moves": "XrXXXrprrXXrXrrXrprXXrXrrh",
+              "backtracks": 5,
+              "start": "2026-10-07T23:27:45.459Z",
+              "end": "2026-10-07T23:28:33.338Z"
+            }
+          ]
+        }
+      },
+      "domain": "code",
+      "subject": {
+        "type": "pull_request",
+        "title": "pypa/hatch #2216",
+        "href": "https://github.com/pypa/hatch/pull/2216",
+        "system": "github",
+        "id": "pypa/hatch#2216"
+      }
+    }
+  }
+}

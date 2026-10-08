@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.2.1 - 2026-10-08
+
+- Add the `org.orgx.review/v1` extension (`docs/review-extension.md`,
+  `schema/extensions/org.orgx.review.v1.schema.json`). It rides in
+  `extensions['org.orgx.review/v1']` and is additive: the v0.2 core is unchanged
+  and hosts that do not know the namespace ignore it. It carries what a reviewer
+  needs to approve or reject work: where each criterion came from (with the
+  quoted line and a link), whether that source still agrees (`source_check`),
+  four kinds of proof per criterion (`judged`, `measured`, `observed`,
+  `outcome`), the episodes of the work with stable content-derived ids tied to
+  commits, which layers of the record exist, the inputs, the conversation, and
+  independent readings of the same run.
+- Export `validateOrgxReviewExtension`, `getOrgxReviewExtension`,
+  `orgxReviewExtensionSchema`, `ORGX_REVIEW_EXTENSION_KEY` and the
+  `OrgxReview*` types. The validator checks the extension against its schema
+  and ties every id back to the receipt it sits in (criteria, sources,
+  evidence, actions, trajectory, episodes). It never changes the result of
+  `validateAgentWorkReceipt`.
+- Export the v0.2 schema at `./schema/v0.2` and the extension schema at
+  `./schema/extensions/org.orgx.review/v1`.
+- Add `fixtures/hatch-2216-review.v0.2.json`: a real skill-guided verification
+  run of pypa/hatch#2216 carrying the extension, and `tests/review.spec.ts`.
+
 ## 0.2.0 - 2026-09-27
 
 - Add Agent Work Receipt v0.2. It is additive over v0.1, and the schema is generated from v0.1 by

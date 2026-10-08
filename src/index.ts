@@ -10,5 +10,6 @@ export {
   parseAgentWorkReceipt,
   validateAgentWorkReceipt,
 } from './validator.ts';
+export * from './review.ts';
 export * from './types.ts';
 export * from './unicode.ts';
