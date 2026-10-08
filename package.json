@@ -1,6 +1,6 @@
 {
   "name": "@useorgx/agent-work-receipt",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Account-free Agent Work Receipt schema (v0.1, v0.2), types, and deterministic validator.",
   "license": "Apache-2.0",
   "author": "OrgX <team@useorgx.com>",
@@ -63,7 +63,8 @@
   "devDependencies": {
     "@types/node": "^22.15.0",
     "typescript": "^5.9.3",
-    "vitest": "4.1.11"
+    "vitest": "4.1.11",
+    "vite": "6.4.3"
   },
   "overrides": {
     "@vitest/mocker@>=3 <4": "4.1.11",
