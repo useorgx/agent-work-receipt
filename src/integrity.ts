@@ -5,6 +5,10 @@ import type {
   AgentWorkSignature,
   JsonValue,
 } from './types.ts';
+import {
+  verifyAgentWorkEd25519Signature,
+  type AgentWorkPublicKeyResolver,
+} from './signature.ts';
 import { hasUnpairedUtf16Surrogate } from './unicode.ts';
 
 export const AGENT_WORK_RECEIPT_INTEGRITY_REPORT_VERSION =
@@ -79,6 +83,14 @@ export interface AgentWorkSignerTrustInput {
 }
 
 export interface VerifyAgentWorkReceiptIntegrityOptions {
+  /**
+   * Built-in Ed25519 verification: resolve the public key for a signature and
+   * let the SDK verify it with Web Crypto. A resolver that returns null or
+   * undefined leaves the signature `not_checked`; a key that cannot be imported
+   * or a resolver that throws reports `error`. Ignored when `verify_signature`
+   * is supplied, which keeps full control with the caller.
+   */
+  resolve_public_key?: AgentWorkPublicKeyResolver;
   verify_signature?: (
     input: AgentWorkSignatureVerificationInput
   ) => AgentWorkCryptographicState | Promise<AgentWorkCryptographicState>;
@@ -528,6 +540,27 @@ export async function verifyAgentWorkReceiptIntegrity(
           cryptographicState = CRYPTOGRAPHIC_CALLBACK_STATES.has(candidate)
             ? candidate
             : 'error';
+        } catch {
+          cryptographicState = 'error';
+        }
+      } else if (options.resolve_public_key) {
+        try {
+          const publicKey = await options.resolve_public_key({
+            key_id: signature.key_id,
+            signature,
+          });
+          if (publicKey !== null && publicKey !== undefined) {
+            const payload = new TextEncoder().encode(
+              canonicalizeAgentWorkReceiptSignaturePayload(signature, declared)
+            );
+            cryptographicState = (await verifyAgentWorkEd25519Signature(
+              publicKey,
+              payload,
+              signatureBytes
+            ))
+              ? 'verified'
+              : 'invalid';
+          }
         } catch {
           cryptographicState = 'error';
         }

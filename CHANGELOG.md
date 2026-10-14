@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.3.0 - 2026-10-14
+
+- Add Agent Work Receipt v0.3 (`schema/agent-work-receipt.v0.3.schema.json`,
+  `$id` `https://useorgx.com/schemas/agent-work-receipt/v0.3/schema.json`,
+  exported at `./schema/v0.3`). It is additive over v0.2 and generated from it
+  by `scripts/build-v0.3-schema.mjs`; v0.1 and v0.2 receipts validate exactly
+  as before. It adds:
+  - `outcome.claim_level`: `asserted` < `executed` < `observed` < `checked` <
+    `accepted` < `outcome_observed`
+  - `outcome.effects[]` and `actions[].coverage` / `outcome.effects[].coverage`:
+    `enforced` | `observed_only` | `outside_coverage`
+  - `verification.checks[].verifier`: `actor`, `evidence_source`, `model_family`
+  - `intent.consequential` (default `true`) and `model.family`
+  - `lineage.trace_commitments[]`: `trace_id`, `algorithm: "sha256"`, `root`,
+    `construction` (`awr-trace-merkle/v1`), `leaf_count`, `trace_ref`,
+    `committed_at`
+- The validator enforces v0.3 rules (docs/v0.3.md): a claimed level needs the
+  supporting fields of every level up to it (`semantic.claim_level_unsupported`);
+  a check verified by the receipt actor cannot support `checked` for
+  consequential work (`semantic.self_verification`); the actor cannot accept
+  its own work (`semantic.self_acceptance`); effect references resolve and
+  effect ids and trace commitments are unique.
+- Export `highestSupportedAgentWorkClaimLevel`, `agentWorkClaimLevelIssues`,
+  `compareAgentWorkClaimLevels`, `isAgentWorkConsequential`,
+  `isSameAgentWorkIdentity`, `effectiveAgentWorkCheckVerifier`, and
+  `AGENT_WORK_RECEIPT_CLAIM_LEVELS`.
+- Verify Ed25519 signatures in the SDK with Web Crypto: new
+  `resolve_public_key` option on `verifyAgentWorkReceiptIntegrity`, plus
+  `createAgentWorkKeyResolver` (key-id map, JWKS, fallback),
+  `verifyAgentWorkEd25519Signature`, `importAgentWorkEd25519PublicKey`, and
+  `decodeAgentWorkEd25519PublicKey`. The `verify_signature` callback API is
+  unchanged and takes precedence. No new dependencies.
+- Add trace commitment helpers: `computeAgentWorkTraceCommitmentRoot`,
+  `createAgentWorkTraceCommitment`, `verifyAgentWorkTraceCommitment`.
+- Add the `awr-verify` offline verifier CLI (`bin`), with `--key`, `--keys`,
+  `--json`, and `--strict`, and documented exit codes.
+- Add `fixtures/release-check.v0.3.json` (signed with the RFC 8032 test key),
+  `conformance/agent-work-receipt-v0.3-vectors.json`, its generator
+  `scripts/build-v0.3-vectors.mjs`, and tests.
+- `npm run build:schema` now builds v0.2 and v0.3.
+
 ## 0.2.1 - 2026-10-08
 
 - Add the `org.orgx.review/v1` extension (`docs/review-extension.md`,

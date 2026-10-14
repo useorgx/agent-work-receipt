@@ -11,9 +11,37 @@ export const AGENT_WORK_RECEIPT_SCHEMA_VERSION_V02 =
 export const AGENT_WORK_RECEIPT_SCHEMA_ID_V02 =
   'https://useorgx.com/schemas/agent-work-receipt/v0.2/schema.json' as const;
 
+/** v0.3 = v0.2 plus optional, additive fields (marked "v0.3" below). */
+export const AGENT_WORK_RECEIPT_SCHEMA_VERSION_V03 =
+  'agent-work-receipt/v0.3' as const;
+
+export const AGENT_WORK_RECEIPT_SCHEMA_ID_V03 =
+  'https://useorgx.com/schemas/agent-work-receipt/v0.3/schema.json' as const;
+
 export type AgentWorkReceiptSchemaVersion =
   | typeof AGENT_WORK_RECEIPT_SCHEMA_VERSION
-  | typeof AGENT_WORK_RECEIPT_SCHEMA_VERSION_V02;
+  | typeof AGENT_WORK_RECEIPT_SCHEMA_VERSION_V02
+  | typeof AGENT_WORK_RECEIPT_SCHEMA_VERSION_V03;
+
+/**
+ * v0.3: the claim ladder, weakest first. Claiming a level claims every level
+ * below it.
+ */
+export const AGENT_WORK_RECEIPT_CLAIM_LEVELS = [
+  'asserted',
+  'executed',
+  'observed',
+  'checked',
+  'accepted',
+  'outcome_observed',
+] as const;
+
+/** v0.3 */
+export type AgentWorkClaimLevel =
+  (typeof AGENT_WORK_RECEIPT_CLAIM_LEVELS)[number];
+
+/** v0.3: how an action or effect is known. */
+export type AgentWorkCoverage = 'enforced' | 'observed_only' | 'outside_coverage';
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
@@ -55,6 +83,8 @@ export interface AgentWorkModel {
   provider: string;
   name: string;
   version?: string;
+  /** v0.3: model family, for example claude, gpt, gemini, llama. */
+  family?: string;
 }
 
 export interface AgentWorkActor {
@@ -77,6 +107,11 @@ export interface AgentWorkIntent {
   criteria?: readonly AgentWorkCriterion[];
   /** v0.2: the range of outcomes that would count. */
   expected_outcomes?: readonly AgentWorkExpectedOutcome[];
+  /**
+   * v0.3: defaults to true. False declares the work inconsequential, which lets
+   * a self-check support the `checked` claim level.
+   */
+  consequential?: boolean;
   metadata?: JsonObject;
 }
 
@@ -195,6 +230,8 @@ export interface AgentWorkAction {
   started_at?: string;
   completed_at?: string;
   error?: string;
+  /** v0.3 */
+  coverage?: AgentWorkCoverage;
   metadata?: JsonObject;
 }
 
@@ -257,7 +294,48 @@ export interface AgentWorkOutcome {
   criteria_results?: readonly AgentWorkCriterionResult[];
   /** v0.2 */
   expected_results?: readonly AgentWorkExpectedResult[];
+  /** v0.3: the strongest claim this receipt makes. */
+  claim_level?: AgentWorkClaimLevel;
+  /** v0.3: structured effects, each with its coverage and evidence. */
+  effects?: readonly AgentWorkEffect[];
   metadata?: JsonObject;
+}
+
+/** v0.3: one change the work made in the world, and how it is known. */
+export interface AgentWorkEffect {
+  id: string;
+  summary: string;
+  coverage: AgentWorkCoverage;
+  target_ref?: AgentWorkExternalReference;
+  action_ids?: readonly string[];
+  evidence_ids: readonly string[];
+  observed_at?: string;
+}
+
+/** v0.3: verifier lineage for one check. */
+export interface AgentWorkCheckVerifier {
+  /** Verifier identity; compared by type and id with the receipt actor. */
+  actor: AgentWorkActor;
+  model_family?: string;
+  evidence_source:
+    | 'system_of_record'
+    | 'independent_execution'
+    | 'actor_supplied'
+    | 'human_judgment'
+    | 'other';
+}
+
+/** v0.3: a hash commitment to the spans of one trace (awr-trace-merkle/v1). */
+export interface AgentWorkTraceCommitment {
+  trace_id: string;
+  algorithm: 'sha256';
+  /** Lowercase hex SHA-256 Merkle root. */
+  root: string;
+  /** Absent means awr-trace-merkle/v1. */
+  construction?: 'awr-trace-merkle/v1';
+  leaf_count?: number;
+  trace_ref?: AgentWorkExternalReference;
+  committed_at?: string;
 }
 
 export interface AgentWorkVerificationCheck {
@@ -269,6 +347,8 @@ export interface AgentWorkVerificationCheck {
   details?: string;
   /** v0.2: the criteria this check speaks to. */
   criterion_ids?: readonly string[];
+  /** v0.3: who produced this verdict and where its evidence came from. */
+  verifier?: AgentWorkCheckVerifier;
 }
 
 export interface AgentWorkVerification {
@@ -321,6 +401,8 @@ export interface AgentWorkLineage {
   span_id?: string;
   /** v0.2: the larger effort this piece of work belongs to. */
   workstream_ref?: AgentWorkExternalReference;
+  /** v0.3: hash commitments to trace spans, by reference. */
+  trace_commitments?: readonly AgentWorkTraceCommitment[];
   metadata?: JsonObject;
 }
 

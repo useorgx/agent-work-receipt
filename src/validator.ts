@@ -1,7 +1,12 @@
 import { Ajv2020, type ErrorObject } from 'ajv/dist/2020.js';
 import addFormatsModule from 'ajv-formats';
 
-import { agentWorkReceiptSchema, agentWorkReceiptSchemaV02 } from './schema.ts';
+import { agentWorkClaimLevelIssues } from './claims.ts';
+import {
+  agentWorkReceiptSchema,
+  agentWorkReceiptSchemaV02,
+  agentWorkReceiptSchemaV03,
+} from './schema.ts';
 import type {
   AgentWorkReceipt,
   AgentWorkReceiptValidationIssue,
@@ -34,9 +39,14 @@ addFormatsModule.default(ajv, {
 
 const validateSchemaV01 = ajv.compile<AgentWorkReceipt>(agentWorkReceiptSchema);
 const validateSchemaV02 = ajv.compile<AgentWorkReceipt>(agentWorkReceiptSchemaV02);
-/** v0.2 receipts use the v0.2 schema; everything else (including unknown versions) is judged as v0.1. */
-const schemaFor = (value: unknown) =>
-  value && typeof value === 'object' && (value as { schema_version?: unknown }).schema_version === 'agent-work-receipt/v0.2' ? validateSchemaV02 : validateSchemaV01;
+const validateSchemaV03 = ajv.compile<AgentWorkReceipt>(agentWorkReceiptSchemaV03);
+/** v0.2 and v0.3 receipts use their own schema; everything else (including unknown versions) is judged as v0.1. */
+const schemaFor = (value: unknown) => {
+  const version = value && typeof value === 'object' ? (value as { schema_version?: unknown }).schema_version : undefined;
+  if (version === 'agent-work-receipt/v0.3') return validateSchemaV03;
+  if (version === 'agent-work-receipt/v0.2') return validateSchemaV02;
+  return validateSchemaV01;
+};
 
 function escapeJsonPointerSegment(segment: string | number): string {
   return String(segment).replace(/~/g, '~0').replace(/\//g, '~1');
@@ -505,7 +515,10 @@ function validateSemantics(
     );
   }
 
-  if (receipt.schema_version === 'agent-work-receipt/v0.2') validateV02Semantics(receipt, knownEvidenceIds, issues);
+  if (receipt.schema_version === 'agent-work-receipt/v0.2' || receipt.schema_version === 'agent-work-receipt/v0.3') {
+    validateV02Semantics(receipt, knownEvidenceIds, issues);
+  }
+  if (receipt.schema_version === 'agent-work-receipt/v0.3') validateV03Semantics(receipt, knownEvidenceIds, issues);
 
   return issues;
 }
@@ -578,6 +591,28 @@ function validateV02Semantics(receipt: AgentWorkReceipt, knownEvidenceIds: Reado
       if (!actionIds.has(id)) issues.push(semanticIssue(`/trajectory/${index}/action_ids/${j}`, 'unknown_action_id', 'Referenced action id is not present in /actions.'));
     });
   });
+}
+
+/** v0.3: effects and trace commitments resolve and are unique; the claimed level is supported. */
+function validateV03Semantics(receipt: AgentWorkReceipt, knownEvidenceIds: ReadonlySet<string>, issues: ValidationIssueSink): void {
+  const actionIds = new Set(receipt.actions.map(({ id }) => id));
+  const effects = receipt.outcome.effects ?? [];
+  addDuplicateIdIssues(effects, '/outcome/effects', issues);
+  effects.forEach((effect, index) => {
+    addEvidenceReferenceIssues(effect.evidence_ids, `/outcome/effects/${index}/evidence_ids`, knownEvidenceIds, issues);
+    effect.action_ids?.forEach((id, j) => {
+      if (!actionIds.has(id)) issues.push(semanticIssue(`/outcome/effects/${index}/action_ids/${j}`, 'unknown_action_id', 'Referenced action id is not present in /actions.'));
+    });
+  });
+
+  const seenTraces = new Map<string, number>();
+  receipt.lineage.trace_commitments?.forEach((commitment, index) => {
+    const first = seenTraces.get(commitment.trace_id);
+    if (first !== undefined) issues.push(semanticIssue(`/lineage/trace_commitments/${index}/trace_id`, 'duplicate_trace_commitment', `Trace already has a commitment at /lineage/trace_commitments/${first}.`));
+    else seenTraces.set(commitment.trace_id, index);
+  });
+
+  if (receipt.outcome.claim_level) issues.push(...agentWorkClaimLevelIssues(receipt, receipt.outcome.claim_level));
 }
 
 export function validateAgentWorkReceipt(
