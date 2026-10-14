@@ -41,6 +41,18 @@
   `scripts/build-v0.3-vectors.mjs`, and tests.
 - `npm run build:schema` now builds v0.2 and v0.3.
 
+## 0.2.2 - 2026-10-08
+
+Security maintenance release. No changes to the schema, validator, or public API.
+
+- Patch vulnerable development dependencies: move to `vitest` 4.1.11 and
+  `vite` 6.4.3, and pin patched transitive versions via `overrides`
+  (`@vitest/mocker`, `fast-uri`, `nanoid`, `postcss`, `source-map-js`,
+  `tinypool`), keeping Node 20 test compatibility.
+- Add Dependabot for npm (grouped security updates) and GitHub Actions.
+- Add a source-release workflow that creates a GitHub release for `v*` and
+  `security-*` tags.
+
 ## 0.2.1 - 2026-10-08
 
 - Add the `org.orgx.review/v1` extension (`docs/review-extension.md`,

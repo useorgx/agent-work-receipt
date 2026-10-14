@@ -25,5 +25,13 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+      - run: npm run check:schema
+      - name: Check v0.3 vectors are fresh
+        run: |
+          node scripts/build-v0.3-vectors.mjs
+          git diff --exit-code -- conformance/ fixtures/
       - run: npm run build
+      - name: Verify the v0.3 fixture with the built CLI
+        # RFC 8032 section 7.1 TEST 1 public key (test material, not a production key).
+        run: node dist/src/bin.js fixtures/release-check.v0.3.json --key d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a
       - run: npm pack --dry-run
