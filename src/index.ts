@@ -1,4 +1,8 @@
-export { agentWorkReceiptSchema, agentWorkReceiptSchemaV02 } from './schema.ts';
+export {
+  agentWorkReceiptSchema,
+  agentWorkReceiptSchemaV02,
+  agentWorkReceiptSchemaV03,
+} from './schema.ts';
 export * from './integrity.ts';
 export * from './rawJson.ts';
 export {
@@ -13,3 +17,6 @@ export {
 export * from './review.ts';
 export * from './types.ts';
 export * from './unicode.ts';
+export * from './claims.ts';
+export * from './signature.ts';
+export * from './trace.ts';

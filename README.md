@@ -12,9 +12,10 @@ represented without translation into an OrgX identifier.
 
 ## Contract
 
-- Schema versions: `agent-work-receipt/v0.1` and `agent-work-receipt/v0.2`
-- JSON Schemas: `schema/agent-work-receipt.v0.1.schema.json`, `schema/agent-work-receipt.v0.2.schema.json`
+- Schema versions: `agent-work-receipt/v0.1`, `agent-work-receipt/v0.2`, and `agent-work-receipt/v0.3`
+- JSON Schemas: `schema/agent-work-receipt.v0.1.schema.json`, `schema/agent-work-receipt.v0.2.schema.json`, `schema/agent-work-receipt.v0.3.schema.json`
 - v0.2 adds optional fields only: identified acceptance criteria and their results, expected outcome ranges, per-field provenance, the trajectory of the work, and the workstream it belongs to. See [docs/v0.2.md](docs/v0.2.md).
+- v0.3 adds optional fields only: an ordered claim level (`outcome.claim_level`) the validator holds to its supporting fields, per-action and per-effect `coverage`, verifier lineage on checks with a self-verification rule, and trace commitments (`lineage.trace_commitments[]`). See [docs/v0.3.md](docs/v0.3.md).
 - Dialect: JSON Schema Draft 2020-12
 - License: Apache-2.0
 
@@ -70,10 +71,11 @@ signing time instead of leaving envelope metadata mutable.
 Content equality, cryptographic signature validity, and signer trust are three
 different states. `verifyAgentWorkReceiptIntegrity` reports them independently
 and deliberately has no aggregate `valid` boolean. The SDK computes content
-hashes itself; the signature verification implementation, key resolution, and
-trust roots remain consumer-supplied policy callbacks. The callback receives
-the exact canonical signature payload, its UTF-8 bytes, and decoded signature
-bytes.
+hashes itself. Since 0.3.0 it also verifies Ed25519 signatures itself (Web
+Crypto) when given a `resolve_public_key` resolver; key resolution and trust
+roots remain consumer policy. A caller can instead supply its own
+`verify_signature` callback, which takes precedence and receives the exact
+canonical signature payload, its UTF-8 bytes, and decoded signature bytes.
 
 Numeric values follow the interoperable JSON/IEEE-754 boundary: they must be
 finite and between `-9007199254740991` and `9007199254740991`; integer fields
@@ -91,6 +93,7 @@ npm install @useorgx/agent-work-receipt
 
 ```ts
 import {
+  createAgentWorkKeyResolver,
   hashAgentWorkReceiptContent,
   parseAgentWorkReceipt,
   validateAgentWorkReceipt,
@@ -110,6 +113,13 @@ const digest = await hashAgentWorkReceiptContent(portableReceipt);
 
 // Verify an independently received signed receipt without rehashing it first.
 const signedReceipt: AgentWorkReceipt = parseAgentWorkReceipt(signedInput);
+
+// Built-in Ed25519 verification with a pluggable key resolver (0.3.0+).
+const report = await verifyAgentWorkReceiptIntegrity(signedReceipt, {
+  resolve_public_key: createAgentWorkKeyResolver({ keys: yourJwks }),
+});
+
+// Or keep full control with your own verifier callback.
 const integrity = await verifyAgentWorkReceiptIntegrity(signedReceipt, {
   verify_signature: async ({ signature, signature_payload, signature_bytes }) =>
     verifyWithYourKeyring(signature.key_id, signature_payload, signature_bytes)
@@ -119,6 +129,21 @@ const integrity = await verifyAgentWorkReceiptIntegrity(signedReceipt, {
     yourTrustPolicy(signature) ? 'trusted' : 'untrusted',
 });
 ```
+
+### Offline verifier
+
+The package ships an `awr-verify` command that validates a receipt, recomputes
+its content hash, and verifies its signatures without any network access:
+
+```sh
+npx awr-verify receipt.json --key <base64url | hex | key file>
+npx awr-verify receipt.json --keys jwks.json --strict --json
+```
+
+It exits 0 when the receipt is valid with no integrity failure, 1 when it is
+invalid (including claim-level violations), 2 on a content-hash or signature
+failure, 3 when `--strict` requirements are unmet, and 64 on a usage error. See
+[docs/v0.3.md](docs/v0.3.md#offline-verifier).
 
 `withAgentWorkReceiptContentHash` removes existing signatures by default because
 rehashing can make them stale. A caller that has independently proved the
@@ -161,8 +186,11 @@ The validator enforces the JSON Schema plus cross-record invariants:
 - unique action, artifact, evidence, intervention, and verification-check ids;
 - evidence references resolve to the receipt's evidence records;
 - receipt, action, and authority timestamps are ordered;
-- terminal actions include completion timestamps; and
-- verification summaries agree with their checks.
+- terminal actions include completion timestamps;
+- verification summaries agree with their checks; and
+- for v0.2 and v0.3, the cross-reference rules in [docs/v0.2.md](docs/v0.2.md),
+  and for v0.3 the claim-level and self-verification rules in
+  [docs/v0.3.md](docs/v0.3.md).
 
 ## Fixtures
 
@@ -196,7 +224,12 @@ Portable implementations can consume two versioned, JSON-only boundaries:
   Ed25519 payload, and content/signature tamper vectors;
 - [`conformance/agent-work-receipt-integrity-report.v0.1.schema.json`](conformance/agent-work-receipt-integrity-report.v0.1.schema.json)
   defines the language-neutral result states for content, cryptography, and
-  trust.
+  trust;
+- [`conformance/agent-work-receipt-v0.3-vectors.json`](conformance/agent-work-receipt-v0.3-vectors.json)
+  fixes v0.3 validation results (valid cases, claim-level and self-verification
+  violations, schema violations), signature results for the signed
+  [v0.3 fixture](fixtures/release-check.v0.3.json) (wrong key, unknown key id,
+  tampered signature, tampered content), and `awr-trace-merkle/v1` roots.
 
 The Codex fixture carries the published digest from those vectors. Conforming
 implementations must reproduce it after removing only the root `integrity`
@@ -260,7 +293,7 @@ layers of the record exist. See `docs/review-extension.md`. Validate it with
 
 ## Versioning
 
-`v0.1` and `v0.2` are interoperability previews; the validator dispatches on `schema_version`. Producers must emit the exact
+`v0.1`, `v0.2`, and `v0.3` are interoperability previews; the validator dispatches on `schema_version`. Producers must emit the exact
 `schema_version` they implement. Breaking field or meaning changes require a new
 schema version; additions that older strict validators cannot accept also require
 a new version. Runtime-specific data belongs in namespaced `extensions` and must

@@ -1,0 +1,441 @@
+{
+  "schema_version": "agent-work-receipt/v0.3",
+  "receipt_id": "example-release-check-v03-1",
+  "intent": {
+    "summary": "Raise the API rate limit for the reporting service and ship it.",
+    "objective": "Apply the approved limit change, prove it with an independent check, and observe the error rate after deploy.",
+    "request_ref": {
+      "system": "claude-code",
+      "type": "session",
+      "id": "example-session-42"
+    },
+    "criteria": [
+      {
+        "id": "c1",
+        "text": "The configuration test suite passes in CI",
+        "kind": "tests",
+        "source": "requested"
+      },
+      {
+        "id": "c2",
+        "text": "A person accepts the change",
+        "kind": "approval",
+        "source": "policy"
+      }
+    ],
+    "expected_outcomes": [
+      {
+        "id": "e1",
+        "description": "429 error rate stays below 0.5% for an hour after deploy",
+        "metric": "http_429_rate",
+        "unit": "percent",
+        "max": 0.5
+      }
+    ],
+    "consequential": true
+  },
+  "actor": {
+    "type": "agent",
+    "id": "claude-code-agent",
+    "display_name": "Claude Code",
+    "runtime": {
+      "name": "claude-code",
+      "version": "fixture"
+    },
+    "model": {
+      "provider": "anthropic",
+      "name": "fixture-model",
+      "family": "claude"
+    }
+  },
+  "authority": {
+    "mode": "explicit",
+    "status": "granted",
+    "scope": {
+      "actions": [
+        "edit_config",
+        "open_pull_request"
+      ],
+      "resources": [
+        {
+          "system": "git",
+          "type": "file",
+          "id": "services/reporting/limits.yaml"
+        }
+      ]
+    },
+    "approvals": [
+      {
+        "status": "granted",
+        "approver": {
+          "type": "human",
+          "id": "service-owner",
+          "display_name": "Service owner"
+        },
+        "scope": "Edit services/reporting/limits.yaml and open a pull request.",
+        "occurred_at": "2026-10-01T09:01:00Z"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "edit-limits",
+      "type": "file.edit",
+      "summary": "Raised the reporting rate limit from 100 to 250 requests per minute.",
+      "status": "completed",
+      "system": "git",
+      "coverage": "observed_only",
+      "target_refs": [
+        {
+          "system": "git",
+          "type": "file",
+          "id": "services/reporting/limits.yaml"
+        }
+      ],
+      "started_at": "2026-10-01T09:02:00Z",
+      "completed_at": "2026-10-01T09:03:00Z"
+    },
+    {
+      "id": "open-pr",
+      "type": "github.pull_request.create",
+      "summary": "Opened a pull request with the change.",
+      "status": "completed",
+      "system": "github",
+      "coverage": "enforced",
+      "output_refs": [
+        {
+          "system": "github",
+          "type": "pull_request",
+          "id": "example/reporting#311"
+        }
+      ],
+      "started_at": "2026-10-01T09:03:00Z",
+      "completed_at": "2026-10-01T09:04:00Z"
+    },
+    {
+      "id": "local-dry-run",
+      "type": "shell.exec",
+      "summary": "Ran the config loader locally against the new limits.",
+      "status": "completed",
+      "system": "local",
+      "coverage": "outside_coverage",
+      "started_at": "2026-10-01T09:02:30Z",
+      "completed_at": "2026-10-01T09:02:40Z"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "limits-diff",
+      "kind": "source_diff",
+      "name": "Rate limit diff",
+      "role": "output",
+      "ref": {
+        "system": "github",
+        "type": "pull_request",
+        "id": "example/reporting#311"
+      },
+      "media_type": "text/x-diff",
+      "created_at": "2026-10-01T09:04:00Z"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "pr-diff",
+      "kind": "vcs_diff",
+      "summary": "GitHub shows the one-line limit change on the pull request.",
+      "ref": {
+        "system": "github",
+        "type": "pull_request",
+        "id": "example/reporting#311"
+      },
+      "observed_at": "2026-10-01T09:04:00Z"
+    },
+    {
+      "id": "ci-run",
+      "kind": "test_result",
+      "summary": "CI ran the configuration suite on the pull request head: 48 passed.",
+      "ref": {
+        "system": "github",
+        "type": "check_run",
+        "id": "example/reporting/check/9921"
+      },
+      "observed_at": "2026-10-01T09:12:00Z",
+      "excerpt": "48 passed, 0 failed"
+    },
+    {
+      "id": "review-rerun",
+      "kind": "review",
+      "summary": "An independent review agent re-ran the loader and read the diff.",
+      "observed_at": "2026-10-01T09:14:00Z"
+    },
+    {
+      "id": "dry-run-log",
+      "kind": "log",
+      "summary": "The agent's own dry-run output.",
+      "observed_at": "2026-10-01T09:02:40Z"
+    },
+    {
+      "id": "acceptance-click",
+      "kind": "approval",
+      "summary": "The service owner approved and merged the pull request.",
+      "ref": {
+        "system": "github",
+        "type": "pull_request_review",
+        "id": "example/reporting#311/review/1"
+      },
+      "observed_at": "2026-10-01T09:20:00Z"
+    },
+    {
+      "id": "error-rate-dashboard",
+      "kind": "metric",
+      "summary": "Production 429 rate for the hour after deploy.",
+      "ref": {
+        "system": "prometheus",
+        "type": "query",
+        "id": "rate(http_429_total[1h])"
+      },
+      "observed_at": "2026-10-01T10:30:00Z"
+    }
+  ],
+  "outcome": {
+    "status": "succeeded",
+    "summary": "The limit change shipped, passed independent checks, was accepted, and kept the 429 rate under target.",
+    "claim_level": "outcome_observed",
+    "effects": [
+      {
+        "id": "pr-opened",
+        "summary": "Pull request example/reporting#311 exists with the limit change.",
+        "coverage": "enforced",
+        "target_ref": {
+          "system": "github",
+          "type": "pull_request",
+          "id": "example/reporting#311"
+        },
+        "action_ids": [
+          "open-pr"
+        ],
+        "evidence_ids": [
+          "pr-diff"
+        ],
+        "observed_at": "2026-10-01T09:04:00Z"
+      },
+      {
+        "id": "file-changed",
+        "summary": "services/reporting/limits.yaml now allows 250 requests per minute.",
+        "coverage": "observed_only",
+        "action_ids": [
+          "edit-limits"
+        ],
+        "evidence_ids": [
+          "pr-diff"
+        ]
+      }
+    ],
+    "metrics": [
+      {
+        "name": "http_429_rate",
+        "value": 0.12,
+        "unit": "percent",
+        "baseline": 2.4,
+        "target": 0.5,
+        "observed_at": "2026-10-01T10:30:00Z",
+        "evidence_ids": [
+          "error-rate-dashboard"
+        ]
+      }
+    ],
+    "acceptance": {
+      "status": "accepted",
+      "actor": {
+        "type": "human",
+        "id": "service-owner"
+      },
+      "occurred_at": "2026-10-01T09:20:00Z",
+      "evidence_ids": [
+        "acceptance-click"
+      ]
+    },
+    "criteria_results": [
+      {
+        "criterion_id": "c1",
+        "status": "met",
+        "evidence_ids": [
+          "ci-run"
+        ]
+      },
+      {
+        "criterion_id": "c2",
+        "status": "met",
+        "evidence_ids": [
+          "acceptance-click"
+        ],
+        "decided_by": {
+          "type": "human",
+          "id": "service-owner"
+        }
+      }
+    ],
+    "expected_results": [
+      {
+        "expected_id": "e1",
+        "status": "within",
+        "observed": 0.12,
+        "evidence_ids": [
+          "error-rate-dashboard"
+        ]
+      }
+    ]
+  },
+  "verification": {
+    "status": "passed",
+    "method": "CI configuration suite, an independent review agent, and the agent's own dry run.",
+    "verifier": {
+      "type": "service",
+      "id": "github-actions"
+    },
+    "checks": [
+      {
+        "id": "ci-config-suite",
+        "name": "Configuration test suite",
+        "status": "passed",
+        "method": "Read the check run result from GitHub.",
+        "evidence_ids": [
+          "ci-run"
+        ],
+        "criterion_ids": [
+          "c1"
+        ],
+        "verifier": {
+          "actor": {
+            "type": "service",
+            "id": "github-actions"
+          },
+          "evidence_source": "system_of_record"
+        }
+      },
+      {
+        "id": "independent-review",
+        "name": "Independent review re-run",
+        "status": "passed",
+        "evidence_ids": [
+          "review-rerun"
+        ],
+        "verifier": {
+          "actor": {
+            "type": "agent",
+            "id": "review-agent",
+            "model": {
+              "provider": "example-provider",
+              "name": "fixture-reviewer",
+              "family": "gpt"
+            }
+          },
+          "model_family": "gpt",
+          "evidence_source": "independent_execution"
+        }
+      },
+      {
+        "id": "self-dry-run",
+        "name": "Agent dry run",
+        "status": "passed",
+        "evidence_ids": [
+          "dry-run-log"
+        ],
+        "verifier": {
+          "actor": {
+            "type": "agent",
+            "id": "claude-code-agent"
+          },
+          "model_family": "claude",
+          "evidence_source": "actor_supplied"
+        }
+      }
+    ],
+    "evidence_ids": [
+      "ci-run",
+      "review-rerun"
+    ],
+    "verified_at": "2026-10-01T09:14:00Z"
+  },
+  "cost": {
+    "currency": "USD",
+    "total": 0.84,
+    "human_minutes": 3,
+    "estimated": true
+  },
+  "lineage": {
+    "run_ref": {
+      "system": "claude-code",
+      "type": "session",
+      "id": "example-session-42"
+    },
+    "parent_receipt_refs": [],
+    "references": [
+      {
+        "relationship": "trace",
+        "ref": {
+          "system": "opentelemetry",
+          "type": "trace",
+          "id": "4bf92f3577b34da6a3ce929d0e0e4736"
+        }
+      }
+    ],
+    "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+    "trace_commitments": [
+      {
+        "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+        "algorithm": "sha256",
+        "construction": "awr-trace-merkle/v1",
+        "root": "ee8dcc2ee5968a4ca765331a8c7f15d38edb45d369e1ef650dc310fbd154a196",
+        "leaf_count": 3,
+        "trace_ref": {
+          "system": "opentelemetry",
+          "type": "trace",
+          "id": "4bf92f3577b34da6a3ce929d0e0e4736"
+        },
+        "committed_at": "2026-10-01T10:30:00Z"
+      }
+    ]
+  },
+  "human_interventions": [
+    {
+      "id": "owner-acceptance",
+      "kind": "review",
+      "actor": {
+        "type": "human",
+        "id": "service-owner"
+      },
+      "summary": "Reviewed, approved, and merged the pull request.",
+      "occurred_at": "2026-10-01T09:20:00Z",
+      "duration_minutes": 3,
+      "evidence_ids": [
+        "acceptance-click"
+      ]
+    }
+  ],
+  "timestamps": {
+    "started_at": "2026-10-01T09:00:00Z",
+    "completed_at": "2026-10-01T10:30:00Z",
+    "issued_at": "2026-10-01T10:30:05Z"
+  },
+  "integrity": {
+    "content_hash": {
+      "algorithm": "sha-256",
+      "value": "e55c4087a3cf13f7d26a01bfb0d1d1700138fa3eba1ae236724c267703d1051a",
+      "encoding": "hex"
+    },
+    "signatures": [
+      {
+        "algorithm": "ed25519",
+        "encoding": "base64url",
+        "value": "-ig_ZTDl7INH8H3hHCYMIQn8Q4i09DwXHonS7LvbkY5Fi0Ayd2Cym834zymlBGgOKWOzOiDWL0E2H9Wpe3ZuDw",
+        "key_id": "rfc8032-test-key-1",
+        "signer": {
+          "type": "service",
+          "id": "claude-code-receipt-emitter"
+        },
+        "signed_at": "2026-10-01T10:30:06Z"
+      }
+    ]
+  }
+}
