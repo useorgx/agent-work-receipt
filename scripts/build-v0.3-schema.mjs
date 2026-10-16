@@ -11,6 +11,7 @@
 //   intent.consequential                false only when the producer declares the work inconsequential
 //   model.family                        model family, so actor and verifier families can be compared
 //   lineage.trace_commitments[]         SHA-256 Merkle roots over trace spans, by reference (no raw spans)
+//   signature.attests (v0.3.1)          ingested | observed: what a signature attests, as a protected header
 import fs from 'node:fs';
 
 const v02 = JSON.parse(fs.readFileSync(new URL('../schema/agent-work-receipt.v0.2.schema.json', import.meta.url), 'utf8'));
@@ -80,6 +81,11 @@ d.action.properties.coverage = ref('coverage');
 d.outcome.properties.claim_level = ref('claim_level');
 d.outcome.properties.effects = { type: 'array', maxItems: 1000, items: ref('effect') };
 d.verification_check.properties.verifier = ref('check_verifier');
+d.signature.properties.attests = {
+  type: 'string',
+  enum: ['ingested', 'observed'],
+  description: 'Protected: part of the signed payload. ingested: the signer received exactly these bytes (custody and integrity), not an endorsement of claim level, coverage, verification, or acceptance. observed: the signer itself observed or recorded the facts the receipt states. Absent: no statement.',
+};
 d.lineage.properties.trace_commitments = { type: 'array', maxItems: 100, items: ref('trace_commitment') };
 
 fs.writeFileSync(new URL('../schema/agent-work-receipt.v0.3.schema.json', import.meta.url), JSON.stringify(s, null, 2) + '\n');

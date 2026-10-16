@@ -58,10 +58,18 @@ is the UTF-8 encoding of RFC 8785 canonical JSON with this semantic shape:
     "encoding": "base64url",
     "key_id": "producer-owned key reference",
     "signed_at": "optional protected timestamp",
-    "signer": "optional protected AgentWorkActor"
+    "signer": "optional protected AgentWorkActor",
+    "attests": "optional protected attestation (v0.3.1): ingested | observed"
   }
 }
 ```
+
+`attests` (v0.3 receipts, since 0.3.1) says what the signature means, inside the
+signed payload: `ingested` attests custody and integrity of the bytes the signer
+received and is not an endorsement of the receipt's claim level, coverage,
+verification, or acceptance; `observed` attests that the signer itself observed
+or recorded the facts the receipt states. A signature without `attests` makes no
+statement about its meaning, and its payload is unchanged from 0.3.0.
 
 The hash is normalized to lowercase hex inside this envelope regardless of its
 receipt encoding. The signature value itself is excluded. This domain-separated

@@ -1,6 +1,6 @@
 {
   "name": "@useorgx/agent-work-receipt",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Account-free Agent Work Receipt schema (v0.1, v0.2, v0.3), types, deterministic validator, and offline verifier.",
   "license": "Apache-2.0",
   "author": "OrgX <team@useorgx.com>",

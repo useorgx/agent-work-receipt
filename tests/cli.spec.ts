@@ -48,6 +48,19 @@ describe('awr-verify', () => {
     expect((await run(['r.json', '--key', file], files)).code).toBe(AWR_VERIFY_EXIT.ok);
   });
 
+  it('prints what an attested signature attests, and fails when attests is changed', async () => {
+    const attested = applyPatch(releaseCheck, sv.attested.cases[0].patch);
+    const ok = await run(['a.json', '--key', sv.public_key.value], { 'a.json': JSON.stringify(attested) });
+    expect(ok.code).toBe(AWR_VERIFY_EXIT.ok);
+    expect(ok.stdout).toContain('signature 0 [rfc8032-test-key-1]: verified (attests: ingested)');
+    const json = await run(['a.json', '--key', sv.public_key.value, '--json'], { 'a.json': JSON.stringify(attested) });
+    expect(JSON.parse(json.stdout).integrity.signatures[0].attests).toBe('ingested');
+    const changed = applyPatch(releaseCheck, sv.attested.cases[1].patch);
+    const bad = await run(['c.json', '--key', sv.public_key.value], { 'c.json': JSON.stringify(changed) });
+    expect(bad.code).toBe(AWR_VERIFY_EXIT.integrity_failure);
+    expect(bad.stdout).toContain('invalid (attests: observed)');
+  });
+
   it('resolves --keys by key id and emits JSON', async () => {
     const { code, stdout } = await run(['r.json', '--keys', 'jwks.json', '--json', '--strict'], files);
     expect(code).toBe(0);

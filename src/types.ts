@@ -434,6 +434,21 @@ export interface AgentWorkTimestamps {
   duration_ms?: number;
 }
 
+/**
+ * v0.3.1: what a signature attests. A protected header, so it is inside the
+ * signed payload and cannot be changed without invalidating the signature.
+ *
+ * - `ingested`: the signer received exactly these bytes (custody and
+ *   integrity). It does not endorse the receipt's claims: claim level,
+ *   coverage, verification, or acceptance remain the producer's.
+ * - `observed`: the signer itself observed or recorded the facts the receipt
+ *   states (for example its own writes, or runs it executed).
+ *
+ * Absent means the signature makes no statement about its meaning.
+ */
+export const AGENT_WORK_SIGNATURE_ATTESTATIONS = ['ingested', 'observed'] as const;
+export type AgentWorkSignatureAttestation = (typeof AGENT_WORK_SIGNATURE_ATTESTATIONS)[number];
+
 export interface AgentWorkSignature {
   algorithm: 'ed25519';
   encoding: 'base64url';
@@ -441,6 +456,8 @@ export interface AgentWorkSignature {
   key_id: string;
   signer?: AgentWorkActor;
   signed_at?: string;
+  /** v0.3.1: protected; see AgentWorkSignatureAttestation. */
+  attests?: AgentWorkSignatureAttestation;
 }
 
 export interface AgentWorkIntegrity {

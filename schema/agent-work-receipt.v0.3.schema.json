@@ -1216,6 +1216,14 @@
         "signed_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "attests": {
+          "type": "string",
+          "enum": [
+            "ingested",
+            "observed"
+          ],
+          "description": "Protected: part of the signed payload. ingested: the signer received exactly these bytes (custody and integrity), not an endorsement of claim level, coverage, verification, or acceptance. observed: the signer itself observed or recorded the facts the receipt states. Absent: no statement."
         }
       }
     },

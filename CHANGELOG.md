@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.3.1 - 2026-10-16
+
+- Add an optional protected `attests` field to Ed25519 signatures on v0.3
+  receipts: `ingested` (the signer holds exactly these bytes; custody and
+  integrity, not an endorsement of claim level, coverage, verification or
+  acceptance) or `observed` (the signer itself observed or recorded the facts).
+  It is part of the signed payload (`protected.attests`), so changing, adding
+  or removing it invalidates the signature. Signatures without it are signed
+  and verified exactly as in 0.3.0.
+- Export `AGENT_WORK_SIGNATURE_ATTESTATIONS` and
+  `AgentWorkSignatureAttestation`. The integrity report and its JSON Schema
+  carry `attests` per signature, and `awr-verify` prints it.
+- Conformance: `signature_vectors.attested` (an attested signature over the
+  fixture content, plus attests-changed and attests-removed cases), an
+  attests-added case on the unattested signature, and an `unknown-attests`
+  validation vector.
+
 ## 0.3.0 - 2026-10-14
 
 - Add Agent Work Receipt v0.3 (`schema/agent-work-receipt.v0.3.schema.json`,

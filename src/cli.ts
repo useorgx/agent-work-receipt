@@ -182,7 +182,8 @@ function formatText(result: AwrVerifyResult): string {
     if (result.integrity.signatures.length === 0) lines.push('signatures: none');
     for (const s of result.integrity.signatures) {
       const unresolved = s.key_id && result.unresolved_key_ids?.includes(s.key_id) ? ' (no key for this key_id)' : '';
-      lines.push(`signature ${s.index} [${s.key_id ?? '?'}]: ${s.cryptographic_state}${unresolved}`);
+      const attests = s.attests ? ` (attests: ${s.attests})` : '';
+      lines.push(`signature ${s.index} [${s.key_id ?? '?'}]: ${s.cryptographic_state}${attests}${unresolved}`);
     }
     lines.push('signer trust: not evaluated');
   }

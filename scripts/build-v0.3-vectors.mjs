@@ -65,6 +65,17 @@ receipt.integrity = {
 };
 fs.writeFileSync(fixtureUrl, JSON.stringify(receipt, null, 2) + '\n');
 
+// v0.3.1: the same content signed with a protected attestation. The fixture keeps its unattested signature; these cases
+// swap this one in, so a verifier must bind attests into the payload (changing, removing, or adding it fails).
+const attestedSig = { ...sig, attests: 'ingested' };
+const attestedPayload = jcs({
+  content_hash: { algorithm: 'sha-256', value: contentHash },
+  profile: 'agent-work-receipt-signature/v0.1',
+  protected: { algorithm: sig.algorithm, encoding: sig.encoding, key_id: sig.key_id, signer: sig.signer, signed_at: sig.signed_at, attests: attestedSig.attests },
+});
+const attestedSignature = { algorithm: sig.algorithm, encoding: sig.encoding, value: sign(null, Buffer.from(attestedPayload, 'utf8'), privateKey).toString('base64url'), key_id: sig.key_id, signer: sig.signer, signed_at: sig.signed_at, attests: attestedSig.attests };
+const useAttested = { op: 'replace', path: '/integrity/signatures/0', value: attestedSignature };
+
 // A different, still canonical signature: flip one byte in the middle.
 const flipped = Buffer.from(signature, 'base64url');
 flipped[20] ^= 0x01;
@@ -135,6 +146,7 @@ const vectors = {
       expected: { ok: false, issues: [issue('/outcome/effects', 'semantic.claim_level_unsupported')] },
     },
     { name: 'unknown-claim-level', base: F, patch: [{ op: 'replace', path: '/outcome/claim_level', value: 'verified' }], expected: { ok: false, issues: [issue('/outcome/claim_level', 'schema.enum')] } },
+    { name: 'unknown-attests', base: F, patch: [{ op: 'add', path: '/integrity/signatures/0/attests', value: 'endorsed' }], expected: { ok: false, issues: [issue('/integrity/signatures/0/attests', 'schema.enum')] } },
     { name: 'unknown-coverage', base: F, patch: [{ op: 'replace', path: '/actions/0/coverage', value: 'partial' }], expected: { ok: false, issues: [issue('/actions/0/coverage', 'schema.enum')] } },
     { name: 'check-verifier-without-evidence-source', base: F, patch: [{ op: 'remove', path: '/verification/checks/0/verifier/evidence_source' }], expected: { ok: false, issues: [issue('/verification/checks/0/verifier/evidence_source', 'schema.required')] } },
     { name: 'trace-root-not-lowercase-hex', base: F, patch: [{ op: 'replace', path: '/lineage/trace_commitments/0/root', value: 'AB'.repeat(32) }], expected: { ok: false, issues: [issue('/lineage/trace_commitments/0/root', 'schema.pattern')] } },
@@ -170,7 +182,18 @@ const vectors = {
       { name: 'content-changed-after-signing', key_source: 'public_key', patch: [{ op: 'replace', path: '/outcome/metrics/0/value', value: 0.01 }], expected_content_state: 'mismatch', expected_cryptographic_state: 'verified', expected_computed_sha256_hex: tamperedHash },
       { name: 'content-changed-and-rehashed', key_source: 'public_key', patch: [{ op: 'replace', path: '/outcome/metrics/0/value', value: 0.01 }, { op: 'replace', path: '/integrity/content_hash/value', value: tamperedHash }], expected_content_state: 'verified', expected_cryptographic_state: 'invalid' },
       { name: 'signed-at-changed', key_source: 'public_key', patch: [{ op: 'replace', path: '/integrity/signatures/0/signed_at', value: '2026-10-01T10:30:07Z' }], expected_content_state: 'verified', expected_cryptographic_state: 'invalid' },
+      { name: 'attests-added-to-unattested-signature', key_source: 'public_key', patch: [{ op: 'add', path: '/integrity/signatures/0/attests', value: 'ingested' }], expected_content_state: 'verified', expected_cryptographic_state: 'invalid' },
     ],
+    attested: {
+      description: 'v0.3.1 protected attestation. Each case first replaces /integrity/signatures/0 with this signature over the same content.',
+      signature: attestedSignature,
+      payload_canonical_json: attestedPayload,
+      cases: [
+        { name: 'attested-signature-verifies', key_source: 'public_key', patch: [useAttested], expected_content_state: 'verified', expected_cryptographic_state: 'verified', expected_attests: 'ingested' },
+        { name: 'attests-changed', key_source: 'public_key', patch: [useAttested, { op: 'replace', path: '/integrity/signatures/0/attests', value: 'observed' }], expected_content_state: 'verified', expected_cryptographic_state: 'invalid', expected_attests: 'observed' },
+        { name: 'attests-removed', key_source: 'public_key', patch: [useAttested, { op: 'remove', path: '/integrity/signatures/0/attests' }], expected_content_state: 'verified', expected_cryptographic_state: 'invalid' },
+      ],
+    },
   },
   trace_commitment_vectors: [
     { name: 'empty-trace', spans: [], expected_root: traceRoot([]), leaf_count: 0 },
