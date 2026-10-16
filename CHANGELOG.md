@@ -2,8 +2,10 @@
 
 ## 0.3.1 - 2026-10-16
 
-- Add an optional protected `attests` field to Ed25519 signatures on v0.3
-  receipts: `ingested` (the signer holds exactly these bytes; custody and
+- Add an optional protected `attests` field to Ed25519 signatures on receipts
+  of every schema version (the signature profile is shared, so the v0.1 schema's
+  signature definition gains it and v0.2/v0.3 inherit it; existing receipts
+  validate exactly as before): `ingested` (the signer holds exactly these bytes; custody and
   integrity, not an endorsement of claim level, coverage, verification or
   acceptance) or `observed` (the signer itself observed or recorded the facts).
   It is part of the signed payload (`protected.attests`), so changing, adding
@@ -14,8 +16,8 @@
   carry `attests` per signature, and `awr-verify` prints it.
 - Conformance: `signature_vectors.attested` (an attested signature over the
   fixture content, plus attests-changed and attests-removed cases), an
-  attests-added case on the unattested signature, and an `unknown-attests`
-  validation vector.
+  attests-added case on the unattested signature, and `unknown-attests` and
+  `attests-allowed-on-v0.1-signature` validation vectors.
 
 ## 0.3.0 - 2026-10-14
 

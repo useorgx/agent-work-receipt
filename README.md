@@ -64,7 +64,7 @@ is the UTF-8 encoding of RFC 8785 canonical JSON with this semantic shape:
 }
 ```
 
-`attests` (v0.3 receipts, since 0.3.1) says what the signature means, inside the
+`attests` (any receipt version, since SDK 0.3.1; the signature profile is shared) says what the signature means, inside the
 signed payload: `ingested` attests custody and integrity of the bytes the signer
 received and is not an endorsement of the receipt's claim level, coverage,
 verification, or acceptance; `observed` attests that the signer itself observed

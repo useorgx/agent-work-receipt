@@ -435,7 +435,7 @@ export interface AgentWorkTimestamps {
 }
 
 /**
- * v0.3.1: what a signature attests. A protected header, so it is inside the
+ * SDK 0.3.1, every receipt version: what a signature attests. A protected header, so it is inside the
  * signed payload and cannot be changed without invalidating the signature.
  *
  * - `ingested`: the signer received exactly these bytes (custody and

@@ -427,6 +427,20 @@
       }
     },
     {
+      "name": "attests-allowed-on-v0.1-signature",
+      "base": "../fixtures/claude-code.json",
+      "patch": [
+        {
+          "op": "add",
+          "path": "/integrity/signatures/0/attests",
+          "value": "observed"
+        }
+      ],
+      "expected": {
+        "ok": true
+      }
+    },
+    {
       "name": "unknown-coverage",
       "base": "../fixtures/release-check.v0.3.json",
       "patch": [

@@ -147,6 +147,7 @@ const vectors = {
     },
     { name: 'unknown-claim-level', base: F, patch: [{ op: 'replace', path: '/outcome/claim_level', value: 'verified' }], expected: { ok: false, issues: [issue('/outcome/claim_level', 'schema.enum')] } },
     { name: 'unknown-attests', base: F, patch: [{ op: 'add', path: '/integrity/signatures/0/attests', value: 'endorsed' }], expected: { ok: false, issues: [issue('/integrity/signatures/0/attests', 'schema.enum')] } },
+    { name: 'attests-allowed-on-v0.1-signature', base: '../fixtures/claude-code.json', patch: [{ op: 'add', path: '/integrity/signatures/0/attests', value: 'observed' }], expected: { ok: true } },
     { name: 'unknown-coverage', base: F, patch: [{ op: 'replace', path: '/actions/0/coverage', value: 'partial' }], expected: { ok: false, issues: [issue('/actions/0/coverage', 'schema.enum')] } },
     { name: 'check-verifier-without-evidence-source', base: F, patch: [{ op: 'remove', path: '/verification/checks/0/verifier/evidence_source' }], expected: { ok: false, issues: [issue('/verification/checks/0/verifier/evidence_source', 'schema.required')] } },
     { name: 'trace-root-not-lowercase-hex', base: F, patch: [{ op: 'replace', path: '/lineage/trace_commitments/0/root', value: 'AB'.repeat(32) }], expected: { ok: false, issues: [issue('/lineage/trace_commitments/0/root', 'schema.pattern')] } },
