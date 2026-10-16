@@ -407,6 +407,40 @@
       }
     },
     {
+      "name": "unknown-attests",
+      "base": "../fixtures/release-check.v0.3.json",
+      "patch": [
+        {
+          "op": "add",
+          "path": "/integrity/signatures/0/attests",
+          "value": "endorsed"
+        }
+      ],
+      "expected": {
+        "ok": false,
+        "issues": [
+          {
+            "path": "/integrity/signatures/0/attests",
+            "code": "schema.enum"
+          }
+        ]
+      }
+    },
+    {
+      "name": "attests-allowed-on-v0.1-signature",
+      "base": "../fixtures/claude-code.json",
+      "patch": [
+        {
+          "op": "add",
+          "path": "/integrity/signatures/0/attests",
+          "value": "observed"
+        }
+      ],
+      "expected": {
+        "ok": true
+      }
+    },
+    {
       "name": "unknown-coverage",
       "base": "../fixtures/release-check.v0.3.json",
       "patch": [
@@ -707,8 +741,122 @@
         ],
         "expected_content_state": "verified",
         "expected_cryptographic_state": "invalid"
+      },
+      {
+        "name": "attests-added-to-unattested-signature",
+        "key_source": "public_key",
+        "patch": [
+          {
+            "op": "add",
+            "path": "/integrity/signatures/0/attests",
+            "value": "ingested"
+          }
+        ],
+        "expected_content_state": "verified",
+        "expected_cryptographic_state": "invalid"
       }
-    ]
+    ],
+    "attested": {
+      "description": "v0.3.1 protected attestation. Each case first replaces /integrity/signatures/0 with this signature over the same content.",
+      "signature": {
+        "algorithm": "ed25519",
+        "encoding": "base64url",
+        "value": "HVSIuQyNQeNE1wz0PRDDzJXowwCFOdI0Y8eSaTVLYzBJoCQnX71_ma55kgUGvtm4oBw1mtMdx-R79DL0IVF4DQ",
+        "key_id": "rfc8032-test-key-1",
+        "signer": {
+          "type": "service",
+          "id": "claude-code-receipt-emitter"
+        },
+        "signed_at": "2026-10-01T10:30:06Z",
+        "attests": "ingested"
+      },
+      "payload_canonical_json": "{\"content_hash\":{\"algorithm\":\"sha-256\",\"value\":\"e55c4087a3cf13f7d26a01bfb0d1d1700138fa3eba1ae236724c267703d1051a\"},\"profile\":\"agent-work-receipt-signature/v0.1\",\"protected\":{\"algorithm\":\"ed25519\",\"attests\":\"ingested\",\"encoding\":\"base64url\",\"key_id\":\"rfc8032-test-key-1\",\"signed_at\":\"2026-10-01T10:30:06Z\",\"signer\":{\"id\":\"claude-code-receipt-emitter\",\"type\":\"service\"}}}",
+      "cases": [
+        {
+          "name": "attested-signature-verifies",
+          "key_source": "public_key",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/integrity/signatures/0",
+              "value": {
+                "algorithm": "ed25519",
+                "encoding": "base64url",
+                "value": "HVSIuQyNQeNE1wz0PRDDzJXowwCFOdI0Y8eSaTVLYzBJoCQnX71_ma55kgUGvtm4oBw1mtMdx-R79DL0IVF4DQ",
+                "key_id": "rfc8032-test-key-1",
+                "signer": {
+                  "type": "service",
+                  "id": "claude-code-receipt-emitter"
+                },
+                "signed_at": "2026-10-01T10:30:06Z",
+                "attests": "ingested"
+              }
+            }
+          ],
+          "expected_content_state": "verified",
+          "expected_cryptographic_state": "verified",
+          "expected_attests": "ingested"
+        },
+        {
+          "name": "attests-changed",
+          "key_source": "public_key",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/integrity/signatures/0",
+              "value": {
+                "algorithm": "ed25519",
+                "encoding": "base64url",
+                "value": "HVSIuQyNQeNE1wz0PRDDzJXowwCFOdI0Y8eSaTVLYzBJoCQnX71_ma55kgUGvtm4oBw1mtMdx-R79DL0IVF4DQ",
+                "key_id": "rfc8032-test-key-1",
+                "signer": {
+                  "type": "service",
+                  "id": "claude-code-receipt-emitter"
+                },
+                "signed_at": "2026-10-01T10:30:06Z",
+                "attests": "ingested"
+              }
+            },
+            {
+              "op": "replace",
+              "path": "/integrity/signatures/0/attests",
+              "value": "observed"
+            }
+          ],
+          "expected_content_state": "verified",
+          "expected_cryptographic_state": "invalid",
+          "expected_attests": "observed"
+        },
+        {
+          "name": "attests-removed",
+          "key_source": "public_key",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/integrity/signatures/0",
+              "value": {
+                "algorithm": "ed25519",
+                "encoding": "base64url",
+                "value": "HVSIuQyNQeNE1wz0PRDDzJXowwCFOdI0Y8eSaTVLYzBJoCQnX71_ma55kgUGvtm4oBw1mtMdx-R79DL0IVF4DQ",
+                "key_id": "rfc8032-test-key-1",
+                "signer": {
+                  "type": "service",
+                  "id": "claude-code-receipt-emitter"
+                },
+                "signed_at": "2026-10-01T10:30:06Z",
+                "attests": "ingested"
+              }
+            },
+            {
+              "op": "remove",
+              "path": "/integrity/signatures/0/attests"
+            }
+          ],
+          "expected_content_state": "verified",
+          "expected_cryptographic_state": "invalid"
+        }
+      ]
+    }
   },
   "trace_commitment_vectors": [
     {

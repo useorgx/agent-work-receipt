@@ -28,6 +28,7 @@ const bases: Record<string, unknown> = {
   '../fixtures/release-check.v0.3.json': releaseCheck,
   '../fixtures/trail-v0.2.json': trailV02,
   '../fixtures/codex.json': codexReceipt,
+  '../fixtures/claude-code.json': claudeCodeReceipt,
 };
 const clone = (value: unknown): any => JSON.parse(JSON.stringify(value));
 
