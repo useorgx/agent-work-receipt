@@ -313,5 +313,6 @@ not be required to interpret the core receipt.
 
 - [OrgX FAQ](https://useorgx.com/faq): what it is, who it's for, and what it costs
 - [Agent work receipts](https://useorgx.com/agent-work-receipts): how finished agent work is checked and signed off
+- [Reproduce the public proof package](https://useorgx.com/agent-work-receipts/proof): downloaded positive and negative conformance cases, exact file hashes, a historical handoff, and a labeled synthetic rejection (not independent customer adoption or acceptance)
 - [Pricing](https://useorgx.com/pricing)
 - Hosted MCP server: [useorgx/orgx-mcp](https://github.com/useorgx/orgx-mcp)
