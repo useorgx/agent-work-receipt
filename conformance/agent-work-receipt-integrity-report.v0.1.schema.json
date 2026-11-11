@@ -74,6 +74,7 @@
           "algorithm": { "type": "string", "minLength": 1 },
           "encoding": { "type": "string", "minLength": 1 },
           "key_id": { "type": "string", "minLength": 1 },
+          "attests": { "enum": ["ingested", "observed"] },
           "cryptographic_state": {
             "enum": [
               "not_checked",

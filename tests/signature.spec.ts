@@ -14,6 +14,7 @@ import {
   verifyAgentWorkReceiptIntegrity,
   type AgentWorkPublicKeyResolver,
   type AgentWorkReceipt,
+  type AgentWorkSignature,
 } from '../src';
 import { applyPatch } from './patch';
 
@@ -47,6 +48,19 @@ describe('built-in Ed25519 signature verification', () => {
     expect(report.signatures[0].cryptographic_state).toBe(vector.expected_cryptographic_state);
     expect(report.signatures[0].trust_state).toBe('not_evaluated');
     if ('expected_computed_sha256_hex' in vector) expect(report.content_hash.computed.value).toBe(vector.expected_computed_sha256_hex);
+  });
+
+  it('reproduces the v0.3.1 attested payload', () => {
+    const attested = sv.attested.signature as AgentWorkSignature;
+    expect(canonicalizeAgentWorkReceiptSignaturePayload(attested, (releaseCheck as AgentWorkReceipt).integrity!.content_hash)).toBe(sv.attested.payload_canonical_json);
+  });
+
+  it.each(sv.attested.cases)('attested signature vector $name', async (vector) => {
+    const receipt = applyPatch(releaseCheck, vector.patch) as AgentWorkReceipt;
+    const report = await verifyAgentWorkReceiptIntegrity(receipt, { resolve_public_key: resolverFor(vector.key_source) });
+    expect(report.content_hash.state).toBe(vector.expected_content_state);
+    expect(report.signatures[0].cryptographic_state).toBe(vector.expected_cryptographic_state);
+    expect(report.signatures[0].attests).toBe('expected_attests' in vector ? vector.expected_attests : undefined);
   });
 
   it('verifies the v0.1 signature vectors without a caller-supplied callback', async () => {
