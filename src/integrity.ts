@@ -52,6 +52,8 @@ export interface AgentWorkSignatureIntegrityReport {
   algorithm: string;
   encoding: string;
   key_id?: string;
+  /** v0.3.1: the protected attestation, reported only when the signature carries one. */
+  attests?: AgentWorkSignature['attests'];
   cryptographic_state: AgentWorkCryptographicState;
   trust_state: AgentWorkTrustState;
 }
@@ -464,6 +466,7 @@ export function canonicalizeAgentWorkReceiptSignaturePayload(
       key_id: signature.key_id,
       ...(signature.signer ? { signer: signature.signer } : {}),
       ...(signature.signed_at ? { signed_at: signature.signed_at } : {}),
+      ...(signature.attests ? { attests: signature.attests } : {}),
     },
   });
 }
@@ -584,6 +587,7 @@ export async function verifyAgentWorkReceiptIntegrity(
         algorithm: signature.algorithm,
         encoding: signature.encoding,
         ...(signature.key_id ? { key_id: signature.key_id } : {}),
+        ...(signature.attests ? { attests: signature.attests } : {}),
         cryptographic_state: cryptographicState,
         trust_state: trustState,
       } satisfies AgentWorkSignatureIntegrityReport;
